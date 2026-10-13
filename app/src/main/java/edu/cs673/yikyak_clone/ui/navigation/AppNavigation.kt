@@ -12,6 +12,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import edu.cs673.yikyak_clone.ui.screens.*
 import edu.cs673.yikyak_clone.ui.screens.feed.*
+import edu.cs673.yikyak_clone.ui.screens.profile.*
 
 @Composable
 fun AppNavigation() {

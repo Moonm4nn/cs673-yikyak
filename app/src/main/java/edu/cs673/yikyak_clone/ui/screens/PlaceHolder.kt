@@ -70,13 +70,13 @@ fun NotificationsScreen() {
     )
 }
 
-@Composable
+/*@Composable
 fun ProfileScreen() {
     PlaceholderScreen(
         title = "Profile",
         description = "Your profile and account details will appear here."
     )
-}
+}*/
 
 @Composable
 fun SettingsScreen() {
