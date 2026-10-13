@@ -38,13 +38,13 @@ private fun PlaceholderScreen(
     }
 }
 
-@Composable
+/*@Composable
 fun FeedScreen() {
     PlaceholderScreen(
         title = "Feed",
         description = "Nearby posts will appear here."
     )
-}
+}*/
 
 @Composable
 fun CreatePostScreen() {
