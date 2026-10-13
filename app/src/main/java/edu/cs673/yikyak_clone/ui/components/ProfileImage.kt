@@ -32,9 +32,9 @@ fun ProfileImage() {
 @Preview
 @Composable
 fun ProfileImage(
+    modifier: Modifier = Modifier,
     @DrawableRes imageId: Int = R.drawable.ic_launcher_background,
-    contentDescription: String? = "formatted profile image",
-    modifier: Modifier = Modifier
+    contentDescription: String? = "formatted profile image"
 ) {
     Image(
         painter = painterResource(id = imageId),
