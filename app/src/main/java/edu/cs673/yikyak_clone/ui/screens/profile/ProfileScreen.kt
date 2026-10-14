@@ -5,15 +5,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
-import edu.cs673.yikyak_clone.ui.navigation.Screen
 
 // ProfileScreen.kt
-//@Preview (showBackground = true)
 @Composable
 fun ProfileScreen(
     onNavigateToSettings: () -> Unit,
