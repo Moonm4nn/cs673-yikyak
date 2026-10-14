@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,13 +69,13 @@ fun NotificationsScreen() {
     )
 }
 
-@Composable
+/*@Composable
 fun ProfileScreen() {
     PlaceholderScreen(
         title = "Profile",
         description = "Your profile and account details will appear here."
     )
-}
+}*/
 
 @Composable
 fun SettingsScreen() {
