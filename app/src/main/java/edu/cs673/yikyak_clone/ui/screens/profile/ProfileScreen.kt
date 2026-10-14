@@ -10,11 +10,15 @@ import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
+import edu.cs673.yikyak_clone.ui.navigation.Screen
 
 // ProfileScreen.kt
-@Preview (showBackground = true)
+//@Preview (showBackground = true)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onNavigateToSettings: () -> Unit,
+    onNavigateToEditProfile: () -> Unit
+) {
     val samplePost = SocialPost(
         id = "post-1",
         username = "anonymous",
@@ -33,18 +37,10 @@ fun ProfileScreen() {
 
         )
         {
-            Button(
-                onClick = {
-                    println("Button clicked!")
-                }
-            ) {
+            Button( onClick = onNavigateToEditProfile) {
                 Text(text = "Edit")
             }
-            Button(
-                onClick = {
-                    println("Button clicked!")
-                }
-            ) {
+            Button( onClick = onNavigateToSettings) {
                 Text(text = "Settings")
             }
         }

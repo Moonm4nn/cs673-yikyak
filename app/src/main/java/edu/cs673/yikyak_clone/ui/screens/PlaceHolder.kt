@@ -3,6 +3,7 @@ package edu.cs673.yikyak_clone.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -78,9 +79,27 @@ fun ProfileScreen() {
 }*/
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(
+    onBackClick: () -> Unit
+) {
+    Button( onClick = onBackClick) {
+        Text(text = "Back")
+    }
     PlaceholderScreen(
         title = "Settings",
         description = "Manage account and privacy preferences."
+    )
+}
+
+@Composable
+fun EditProfileScreen(
+    onBackClick: () -> Unit
+) {
+    Button( onClick = onBackClick) {
+        Text(text = "Back")
+    }
+    PlaceholderScreen(
+        title = "Edit Profile",
+        description = "Manage profile details."
     )
 }
