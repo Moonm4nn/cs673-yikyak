@@ -5,16 +5,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
+import edu.cs673.yikyak_clone.ui.components.ProfileList
 
 // ProfileScreen.kt
-@Preview (showBackground = true)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(
+    onNavigateToSettings: () -> Unit,
+    onNavigateToEditProfile: () -> Unit
+) {
     val samplePost = SocialPost(
         id = "post-1",
         username = "anonymous",
@@ -33,24 +35,17 @@ fun ProfileScreen() {
 
         )
         {
-            Button(
-                onClick = {
-                    println("Button clicked!")
-                }
-            ) {
+            Button( onClick = onNavigateToEditProfile) {
                 Text(text = "Edit")
             }
-            Button(
-                onClick = {
-                    println("Button clicked!")
-                }
-            ) {
+            Button( onClick = onNavigateToSettings) {
                 Text(text = "Settings")
             }
         }
         ProfileImage()
 
         Text(text = "Username")
+        ProfileList()
         Text(text = "3")
         Text(text = "Karma")
 

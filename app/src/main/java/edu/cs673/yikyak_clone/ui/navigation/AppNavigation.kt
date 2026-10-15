@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import edu.cs673.yikyak_clone.ui.screens.*
 import edu.cs673.yikyak_clone.ui.screens.feed.*
 import edu.cs673.yikyak_clone.ui.screens.profile.*
+import edu.cs673.yikyak_clone.ui.screens.editprofile.*
+import edu.cs673.yikyak_clone.ui.screens.settings.*
 
 @Composable
 fun AppNavigation() {
@@ -98,11 +100,30 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onNavigateToSettings = {
+                        navController.navigate(Screen.Settings.route)
+                    },
+                    onNavigateToEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
+                    }
+                )
             }
 
             composable(Screen.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
+            composable(Screen.EditProfile.route) {
+                EditProfileScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    }
+                )
             }
         }
     }
