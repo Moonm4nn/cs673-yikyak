@@ -9,6 +9,7 @@ import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
+import edu.cs673.yikyak_clone.ui.components.ProfileList
 
 // ProfileScreen.kt
 @Composable
@@ -44,6 +45,7 @@ fun ProfileScreen(
         ProfileImage()
 
         Text(text = "Username")
+        ProfileList()
         Text(text = "3")
         Text(text = "Karma")
 
