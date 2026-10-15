@@ -13,6 +13,8 @@ import androidx.navigation.compose.rememberNavController
 import edu.cs673.yikyak_clone.ui.screens.*
 import edu.cs673.yikyak_clone.ui.screens.feed.*
 import edu.cs673.yikyak_clone.ui.screens.profile.*
+import edu.cs673.yikyak_clone.ui.screens.editprofile.*
+import edu.cs673.yikyak_clone.ui.screens.settings.*
 
 @Composable
 fun AppNavigation() {
