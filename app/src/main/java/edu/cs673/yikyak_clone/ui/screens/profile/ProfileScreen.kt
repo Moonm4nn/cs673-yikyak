@@ -10,6 +10,8 @@ import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
 import edu.cs673.yikyak_clone.ui.components.ProfileList
+import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
+//import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreenOld
 
 // ProfileScreen.kt
 @Composable
@@ -48,6 +50,8 @@ fun ProfileScreen(
         ProfileList()
         Text(text = "3")
         Text(text = "Karma")
+        GeotaggedPostScreen()
+        //GeotaggedPostScreenOld()
 
         LazyColumn(
             modifier = Modifier.fillMaxSize(),

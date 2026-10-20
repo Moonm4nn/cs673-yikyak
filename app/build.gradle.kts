@@ -57,6 +57,9 @@ dependencies {
     // Ktor Client Engine needed for Kotlin Target for Supabase
     implementation(libs.ktor.client.android)
 
+    // Location Services API for Geotagging
+    implementation(libs.play.services.location)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
