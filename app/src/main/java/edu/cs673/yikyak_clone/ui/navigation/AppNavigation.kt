@@ -5,6 +5,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -13,9 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import edu.cs673.yikyak_clone.ui.screens.*
 import edu.cs673.yikyak_clone.ui.screens.feed.*
 import edu.cs673.yikyak_clone.ui.screens.profile.*
+import edu.cs673.yikyak_clone.ui.screens.createpost.CreatePostScreen
 import edu.cs673.yikyak_clone.ui.screens.editprofile.*
 import edu.cs673.yikyak_clone.ui.screens.settings.*
 
+@Preview(showBackground = true)
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -88,7 +91,12 @@ fun AppNavigation() {
             }
 
             composable(Screen.CreatePost.route) {
-                CreatePostScreen()
+                CreatePostScreen(
+                    onBackClick = {
+                        navController.popBackStack()
+                    },
+                    onPostSuccess = {navController.popBackStack()}
+                )
             }
 
             composable(Screen.Channels.route) {

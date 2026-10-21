@@ -45,13 +45,13 @@ fun FeedScreen() {
     )
 }*/
 
-@Composable
-fun CreatePostScreen() {
-    PlaceholderScreen(
-        title = "Create Post",
-        description = "Compose an anonymous post here."
-    )
-}
+//@Composable
+//fun CreatePostScreen() {
+//    PlaceholderScreen(
+//        title = "Create Post",
+//        description = "Compose an anonymous post here."
+//    )
+//}
 
 @Composable
 fun ChannelsScreen() {
