@@ -59,7 +59,7 @@ dependencies {
 
     // Location Services API for Geotagging
     implementation(libs.play.services.location)
-
+    androidTestImplementation(platform(libs.androidx.compose.bom))
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
