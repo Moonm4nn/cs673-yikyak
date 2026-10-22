@@ -18,27 +18,33 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.runtime.LaunchedEffect
+import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 
 private const val MAX_POST_LENGTH = 200
 
 @Composable
 fun CreatePostScreen(
-    onBackClick: () -> Unit,
-    onPostSuccess: () -> Unit,
+    onBackClick: () -> Unit = {},
+    onPostSuccess: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var postText by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
+    val repository = remember { SupabasePostRepository() }
+    val viewModel = remember { CreatePostViewModel(repository) }
+    val uiState = viewModel.uiState
+
+    LaunchedEffect(uiState.postCreated) {
+        if (uiState.postCreated) {
+            onPostSuccess()
+        }
+    }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -65,15 +71,14 @@ fun CreatePostScreen(
                     )
                     Button(
                         onClick = {
-                            if (postText.isNotBlank()) {
-                                isLoading = true
-                                // TODO: call ViewModel to send postText + current location to Supabase
-                            }
-                        },
-                        enabled = postText.isNotBlank() && postText.length <= MAX_POST_LENGTH && !isLoading,
+                                viewModel.onUiAction(CreatePostUiAction.CreatePost())
+                            },
+                            enabled = uiState.postContent.isNotBlank() &&
+                                    uiState.postContent.length <= MAX_POST_LENGTH &&
+                                    !uiState.isLoading,
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        if (isLoading) {
+                        if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.padding(horizontal = 8.dp),
                                 color = MaterialTheme.colorScheme.onPrimary,
@@ -94,10 +99,12 @@ fun CreatePostScreen(
                 .padding(16.dp)
         ) {
             OutlinedTextField(
-                value = postText,
+                value = uiState.postContent,
                 onValueChange = { newText ->
                     if (newText.length <= MAX_POST_LENGTH) {
-                        postText = newText
+                        viewModel.onUiAction(
+                            CreatePostUiAction.UpdatePostContent(newText)
+                        )
                     }
                 },
                 placeholder = { Text("What's on your mind?") },
@@ -110,6 +117,16 @@ fun CreatePostScreen(
                 )
             )
 
+            if (!uiState.errorMessage.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = uiState.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(
@@ -117,9 +134,9 @@ fun CreatePostScreen(
                 contentAlignment = Alignment.CenterEnd
             ) {
                 Text(
-                    text = "${postText.length} / $MAX_POST_LENGTH",
+                    text = "${uiState.postContent.length} / $MAX_POST_LENGTH",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (postText.length >= MAX_POST_LENGTH) {
+                    color = if (uiState.postContent.length >= MAX_POST_LENGTH) {
                         MaterialTheme.colorScheme.error
                     } else {
                         MaterialTheme.colorScheme.onSurfaceVariant
