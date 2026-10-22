@@ -43,19 +43,24 @@ class CreatePostViewModel(
                 val content = uiState.postContent.trim()
 
                 if (content.isEmpty()) {
-                    uiState = uiState.copy(errorMessage = "Post cannot be empty")
+                    uiState = uiState.copy(
+                        errorMessage = "Post cannot be empty",
+                        postCreated = false)
                     return
                 }
 
                 if (content.length > MAX_POST_LENGTH) {
                     uiState = uiState.copy(
-                        errorMessage = "Post cannot exceed $MAX_POST_LENGTH characters"
-                    )
+                        errorMessage = "Post cannot exceed $MAX_POST_LENGTH characters",
+                        postCreated = false)
                     return
                 }
 
                 viewModelScope.launch {
-                    uiState = uiState.copy(isLoading = true)
+                    uiState = uiState.copy(
+                        isLoading = true,
+                        postCreated = false,
+                    )
 
                     val result = postRepository.createPost(
                         postContent = uiState.postContent,
@@ -65,10 +70,12 @@ class CreatePostViewModel(
                     uiState = if (result.isSuccess) {
                         uiState.copy(
                             isLoading = false,
+                            errorMessage = null,
                             postCreated = true)
                     } else {
                         uiState.copy(
                             isLoading = false,
+                            postCreated = false,
                             errorMessage = result.exceptionOrNull()?.message ?: "Failed to create post"
                         )
                     }
