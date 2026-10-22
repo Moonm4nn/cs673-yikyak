@@ -14,7 +14,9 @@ import edu.cs673.yikyak_clone.ui.components.ProfileImage
 
 @Composable
 fun AccountCreationScreen(
-    onCreateUser: (String) -> Unit
+    onCreateUser: (String) -> Unit,
+    isLoading: Boolean,
+    creationError: String?
 ) {
     var username by rememberSaveable {
         mutableStateOf(usernameGenerator())
@@ -47,9 +49,18 @@ fun AccountCreationScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 20.dp, vertical = 12.dp)
                         .height(52.dp),
-                    enabled = username.isNotBlank()
+                    enabled = username.isNotBlank() && !isLoading
                 ) {
-                    Text("Continue")
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(22.dp),
+                            strokeWidth = 2.dp
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Creating profile...")
+                    } else {
+                        Text("Continue")
+                    }
                 }
             }
         }
@@ -69,7 +80,7 @@ fun AccountCreationScreen(
             )
 
             Text(
-                text = "You're here to share thoughts, not personal details.",
+                text = "Create your account to join the conversation.",
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -194,6 +205,14 @@ fun AccountCreationScreen(
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            creationError?.let { message ->
+                Text(
+                    text = message,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
     }
 }
