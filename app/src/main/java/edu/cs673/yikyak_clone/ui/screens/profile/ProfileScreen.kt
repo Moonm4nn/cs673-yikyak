@@ -15,6 +15,7 @@ import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
 // ProfileScreen.kt
 @Composable
 fun ProfileScreen(
+    username: String = "Username",
     onNavigateToSettings: () -> Unit,
     onNavigateToEditProfile: () -> Unit
 ) {
@@ -45,7 +46,7 @@ fun ProfileScreen(
         }
         ProfileImage()
 
-        Text(text = "Username")
+        Text(text = username)
         ProfileList()
         Text(text = "3")
         Text(text = "Karma")
