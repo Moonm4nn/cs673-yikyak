@@ -30,14 +30,3 @@ class SupabasePostRepository: PostRepository {
         }
     }
 }
-
-// For testing
-class FakePostRepository: PostRepository {
-    override suspend fun createPost(
-        postContent: String,
-        imageUri: Uri?
-    ): Result<Unit> {
-        //TODO: mock supabase call?
-        return Result.success(Unit)
-    }
-}
