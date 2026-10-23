@@ -13,20 +13,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import io.github.jan.supabase.createSupabaseClient
-import io.github.jan.supabase.postgrest.Postgrest
+import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 
-val supabase = createSupabaseClient(
-    supabaseUrl = "https://elpbevyjrifdobkpbdex.supabase.co",
-    supabaseKey = "sb_publishable_t3M58TkchkbB5L_4DFQF0A_8LRRtFbg"
-) {
-    install(Postgrest)
-}
-
+val supabase = SupabaseClientProvider.client
 @Serializable
 data class Profiles(
     val id: String,
