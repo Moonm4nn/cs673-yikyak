@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import edu.cs673.yikyak_clone.data.model.SocialPost
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 
 
@@ -37,11 +38,3 @@ fun FeedScreen() {
         }
     }
 }
-
-data class SocialPost(
-    val id: String,
-    val username: String,
-    val avatarUrl: String,
-    val postImageUrl: String,
-    val caption: String
-)

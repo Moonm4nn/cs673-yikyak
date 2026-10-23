@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
+import edu.cs673.yikyak_clone.data.model.SocialPost
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
 import edu.cs673.yikyak_clone.ui.components.ProfileList
 import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
@@ -71,10 +72,3 @@ fun ProfileScreen(
     }
 }
 
-data class SocialPost(
-    val id: String,
-    val username: String,
-    val avatarUrl: String,
-    val postImageUrl: String,
-    val caption: String
-)
