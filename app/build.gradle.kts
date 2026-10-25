@@ -7,12 +7,21 @@ val localProperties = Properties().apply{
     }
 }
 
-fun localSetting(name: String): String =
-    localProperties.getProperty(name)
-        ?: error(
+fun localSetting(name: String): String {
+    localProperties.getProperty(name)?.let { return it }
+
+    val isLocalTaskRequested = gradle.startParameter.taskNames.any {
+        it.contains("local", ignoreCase = true)
+    }
+    if (isLocalTaskRequested) {
+        error(
             "Missing $name in dev.properties. " +
                     "See dev.properties.example."
         )
+    }
+
+    return ""
+}
 
 plugins {
     alias(libs.plugins.android.application)
