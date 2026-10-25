@@ -1,3 +1,28 @@
+import java.util.Properties
+
+val localProperties = Properties().apply{
+    val file = rootProject.file("dev.properties")
+    if(file.exists()){
+        file.inputStream().use { load(it) }
+    }
+}
+
+fun localSetting(name: String): String {
+    localProperties.getProperty(name)?.let { return it }
+
+    val isLocalTaskRequested = gradle.startParameter.taskNames.any {
+        it.contains("local", ignoreCase = true)
+    }
+    if (isLocalTaskRequested) {
+        error(
+            "Missing $name in dev.properties. " +
+                    "See dev.properties.example."
+        )
+    }
+
+    return ""
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -20,6 +45,42 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "backend"
+
+    productFlavors {
+        create("local") {
+            dimension = "backend"
+
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"${localSetting("supabase.local.url")}\""
+            )
+
+            buildConfigField(
+                "String",
+                "SUPABASE_PUBLISHABLE_KEY",
+                "\"${localSetting("supabase.local.publishableKey")}\""
+            )
+        }
+
+        create("production") {
+            dimension = "backend"
+
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"https://elpbevyjrifdobkpbdex.supabase.co\""
+            )
+
+            buildConfigField(
+                "String",
+                "SUPABASE_PUBLISHABLE_KEY",
+                "\"sb_publishable_t3M58TkchkbB5L_4DFQF0A_8LRRtFbg\""
+            )
+        }
+    }
+
     buildTypes {
         release {
             optimization {
@@ -34,6 +95,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
