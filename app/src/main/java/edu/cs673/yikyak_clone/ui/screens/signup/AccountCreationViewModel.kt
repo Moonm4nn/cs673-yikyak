@@ -33,7 +33,7 @@ class AccountCreationViewModel(
             errorMessage = null
 
             try {
-                val result = userRepository.createUser(
+                val result = userRepository.updateUsername(
                     userId = userId,
                     username = username.trim()
                 )
