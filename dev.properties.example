@@ -1,0 +1,6 @@
+## File for dev properties and variables
+
+## Supabase fields for local run and testing
+#  Can be found using supabase status
+supabase.local.url=YOUR_LOCAL_URL
+supabase.local.publishableKey=YOUR_LOCAL_PUBLISHABLE_KEY
