@@ -19,6 +19,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare dev properties for local flavor
+        run: |
+          if [ ! -f dev.properties ]; then
+            cp dev.properties.example dev.properties
+          fi
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
