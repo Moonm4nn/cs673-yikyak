@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import edu.cs673.yikyak_clone.data.model.Comment
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
+import java.util.UUID
 
 val mockComments = listOf(
     Comment(
@@ -48,6 +49,7 @@ val mockComments = listOf(
 
 @Composable
 fun ViewPostScreen() {
+    var comments by remember { mutableStateOf(mockComments) }
     var commentText by remember { mutableStateOf("") }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -61,7 +63,7 @@ fun ViewPostScreen() {
                     onLikeClick = { },
                 )
             }
-            items(mockComments) { comment ->
+            items(comments) { comment ->
                 CommentRow(comment = comment)
             }
         }
@@ -72,11 +74,24 @@ fun ViewPostScreen() {
                 label = { Text("Leave a comment!") },
                 modifier = Modifier.weight(1f)
             )
-            Button(onClick = { }) { Text("Send") }
+            Button(onClick = {
+                if (commentText.isBlank()) return@Button
+
+                val newComment = Comment(
+                    id = UUID.randomUUID().toString(),
+                    content = commentText.trim(),
+                    score = 0,
+                    createdAt = "10/26/26",
+                    alias = "Anon-1234",
+                    parentId = null,
+                )
+
+                comments = comments + newComment
+
+                commentText = ""
+            }) { Text("Send") }
         }
-
     }
-
 }
 
 @Preview
