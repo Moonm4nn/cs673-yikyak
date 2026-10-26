@@ -23,9 +23,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 import java.util.UUID
 
 import edu.cs673.yikyak_clone.data.repository.InMemoryUserRepository
+import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
+import edu.cs673.yikyak_clone.data.repository.SupabaseUserRepository
+import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationViewModel
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationScreen
 import edu.cs673.yikyak_clone.ui.screens.signup.WelcomeScreen
@@ -36,12 +40,13 @@ fun AppNavigation() {
     val navController = rememberNavController()
 
     val userRepository = remember {
-        InMemoryUserRepository()
+        SupabaseUserRepository(SupabaseClientProvider.client)
     }
 
-    val currentUserId = rememberSaveable {
-        UUID.randomUUID().toString()
+    val authRepository = remember {
+        SupabaseAuthRepository(SupabaseClientProvider.client)
     }
+
 
     val accountCreationViewModel: AccountCreationViewModel =
         viewModel(
@@ -56,6 +61,33 @@ fun AppNavigation() {
                         ) {
                             @Suppress("UNCHECKED_CAST")
                             return AccountCreationViewModel(
+                                userRepository,
+                                authRepository
+                            ) as T
+                        }
+
+                        throw IllegalArgumentException(
+                            "Unknown ViewModel class: ${modelClass.name}"
+                        )
+                    }
+                }
+            }
+        )
+
+    val userSessionViewModel: UserSessionViewModel =
+        viewModel(
+            factory = remember(userRepository) {
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(
+                        modelClass: Class<T>
+                    ): T {
+                        if (
+                            modelClass.isAssignableFrom(
+                                UserSessionViewModel::class.java
+                            )
+                        ) {
+                            @Suppress("UNCHECKED_CAST")
+                            return UserSessionViewModel(
                                 userRepository
                             ) as T
                         }
@@ -170,8 +202,12 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
+                val currentUserId = accountCreationViewModel.createdUserId
+
                 LaunchedEffect(currentUserId) {
-                    accountCreationViewModel.getUser(currentUserId)
+                    currentUserId?.let { id ->
+                        userSessionViewModel.loadProfile(id)
+                    }
                 }
 
                 ProfileScreen(
@@ -183,7 +219,8 @@ fun AppNavigation() {
                     },
                     onNavigateToEditProfile = {
                         navController.navigate(Screen.EditProfile.route)
-                    }
+                    },
+                    viewModel = userSessionViewModel
                 )
             }
 
@@ -215,7 +252,6 @@ fun AppNavigation() {
                 AccountCreationScreen(
                     onCreateUser = { username ->
                         accountCreationViewModel.createUser(
-                            userId = currentUserId,
                             username = username
                         )
                     },

@@ -1,80 +1,103 @@
 package edu.cs673.yikyak_clone.data.repository
 
+import edu.cs673.yikyak_clone.data.model.User
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Test
 
 class InMemoryUserRepositoryTest {
 
-    private val repository = InMemoryUserRepository()
+    private val userId = "user-123"
+
+    private fun createRepository(): InMemoryUserRepository {
+        return InMemoryUserRepository(
+            initialUsers = listOf(
+                User(
+                    id = userId,
+                    username = "OriginalYak",
+                    creationTime = ""
+                )
+            )
+        )
+    }
 
     @Test
-    fun createUser_validInput_storesUser() = runTest {
-        val result = repository.createUser(
-            userId = "user-123",
+    fun updateUsername_validInput_updatesExistingUser() = runTest {
+        val repository = createRepository()
+
+        val result = repository.updateUsername(
+            userId = userId,
             username = "YakUser"
         )
 
         assertTrue(result.isSuccess)
 
-        val user = repository.getUser("user-123")
+        val user = repository.getUser(userId)
         assertNotNull(user)
         assertEquals("YakUser", user?.username)
-        assertEquals("user-123", user?.id)
+        assertEquals(userId, user?.id)
     }
 
     @Test
-    fun createUser_blankId_returnsFailure() = runTest {
-        val result = repository.createUser(
+    fun updateUsername_blankId_returnsFailure() = runTest {
+        val repository = createRepository()
+
+        val result = repository.updateUsername(
             userId = " ",
             username = "YakUser"
         )
 
         assertTrue(result.isFailure)
-
-        assertNull(repository.getUser(" "))
     }
 
     @Test
-    fun createUser_blankUsername_returnsFailure() = runTest {
-        val result = repository.createUser(
-            userId = "user-123",
+    fun updateUsername_blankUsername_returnsFailure() = runTest {
+        val repository = createRepository()
+
+        val result = repository.updateUsername(
+            userId = userId,
             username = "   "
         )
 
         assertTrue(result.isFailure)
+        assertEquals(
+            "OriginalYak",
+            repository.getUser(userId)?.username
+        )
     }
 
     @Test
-    fun createUser_usernameHasWhitespace_storesTrimmedUsername() = runTest {
-        val result = repository.createUser(
-            userId = "user-123",
+    fun updateUsername_usernameHasWhitespace_storesTrimmedUsername() = runTest {
+        val repository = createRepository()
+
+        val result = repository.updateUsername(
+            userId = userId,
             username = "  YakUser  "
         )
 
         assertTrue(result.isSuccess)
         assertEquals(
             "YakUser",
-            repository.getUser("user-123")?.username
+            repository.getUser(userId)?.username
         )
     }
 
     @Test
-    fun createUser_duplicateId_returnsFailure() = runTest {
-        repository.createUser("user-123", "FirstYak")
+    fun updateUsername_unknownUser_returnsFailure() = runTest {
+        val repository = createRepository()
 
-        val secondResult = repository.createUser(
-            userId = "user-123",
-            username = "SecondYak"
+        val result = repository.updateUsername(
+            userId = "unknown-user",
+            username = "YakUser"
         )
 
-        assertTrue(secondResult.isFailure)
-        assertEquals("FirstYak",
-            repository.getUser("user-123")?.username)
+        assertTrue(result.isFailure)
     }
 
     @Test
     fun getUser_unknownId_returnsNull() = runTest {
+        val repository = createRepository()
+
         assertNull(repository.getUser("does-not-exist"))
     }
 }

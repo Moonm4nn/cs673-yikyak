@@ -2,7 +2,7 @@ package edu.cs673.yikyak_clone.data.repository
 
 import edu.cs673.yikyak_clone.data.model.User
 interface UserRepository {
-    suspend fun createUser(
+    suspend fun updateUsername(
         userId: String,
         username: String
     ): Result<Unit>
@@ -12,11 +12,15 @@ interface UserRepository {
     ): User?
 }
 
-class InMemoryUserRepository : UserRepository {
+class InMemoryUserRepository(
+    initialUsers: List<User> = emptyList()
+) : UserRepository {
 
-    private val users = mutableMapOf<String, User>()
+    private val users = initialUsers
+        .associateBy { it.id }
+        .toMutableMap()
 
-    override suspend fun createUser(
+    override suspend fun updateUsername(
         userId: String,
         username: String
     ): Result<Unit> = runCatching {
@@ -28,12 +32,10 @@ class InMemoryUserRepository : UserRepository {
             "Username cannot be empty"
         }
 
-        check(userId !in users) {
-            "A user with this ID already exists"
-        }
+        val existingUser = users[userId]
+            ?: error("User not found")
 
-        users[userId] = User(
-            id = userId,
+        users[userId] = existingUser.copy(
             username = username.trim()
         )
     }

@@ -6,11 +6,13 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.cs673.yikyak_clone.data.model.User
+import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
 import edu.cs673.yikyak_clone.data.repository.UserRepository
 import kotlinx.coroutines.launch
 
 class AccountCreationViewModel(
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val authRepository: SupabaseAuthRepository
 ) : ViewModel() {
 
     var isLoading by mutableStateOf(false)
@@ -25,15 +27,20 @@ class AccountCreationViewModel(
     var createdUserId by mutableStateOf<String?>(null)
         private set
 
-    fun createUser(userId: String, username: String) {
+    fun createUser(username: String) {
         if (isLoading) return
 
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
+            createdUserId = null
 
             try {
-                val result = userRepository.createUser(
+                //check for userID or make one
+                val userId = authRepository.currentUserId()
+                    ?: authRepository.signInAnonymously()
+
+                val result = userRepository.updateUsername(
                     userId = userId,
                     username = username.trim()
                 )
