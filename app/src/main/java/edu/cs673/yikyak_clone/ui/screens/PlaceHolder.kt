@@ -45,13 +45,13 @@ fun FeedScreen() {
     )
 }*/
 
-@Composable
-fun CreatePostScreen() {
-    PlaceholderScreen(
-        title = "Create Post",
-        description = "Compose an anonymous post here."
-    )
-}
+//@Composable
+//fun CreatePostScreen() {
+//    PlaceholderScreen(
+//        title = "Create Post",
+//        description = "Compose an anonymous post here."
+//    )
+//}
 
 @Composable
 fun ChannelsScreen() {
@@ -77,10 +77,28 @@ fun ProfileScreen() {
     )
 }*/
 
-@Composable
-fun SettingsScreen() {
+/*@Composable
+fun SettingsScreen(
+    onBackClick: () -> Unit
+) {
+    Button( onClick = onBackClick) {
+        Text(text = "Back")
+    }
     PlaceholderScreen(
         title = "Settings",
         description = "Manage account and privacy preferences."
     )
-}
+}*/
+
+/*@Composable
+fun EditProfileScreen(
+    onBackClick: () -> Unit
+) {
+    Button( onClick = onBackClick) {
+        Text(text = "Back")
+    }
+    PlaceholderScreen(
+        title = "Edit Profile",
+        description = "Manage profile details."
+    )
+}*/

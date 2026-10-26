@@ -1,6 +1,32 @@
+import java.util.Properties
+
+val localProperties = Properties().apply{
+    val file = rootProject.file("dev.properties")
+    if(file.exists()){
+        file.inputStream().use { load(it) }
+    }
+}
+
+fun localSetting(name: String): String {
+    localProperties.getProperty(name)?.let { return it }
+
+    val isLocalTaskRequested = gradle.startParameter.taskNames.any {
+        it.contains("local", ignoreCase = true)
+    }
+    if (isLocalTaskRequested) {
+        error(
+            "Missing $name in dev.properties. " +
+                    "See dev.properties.example."
+        )
+    }
+
+    return ""
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 android {
@@ -19,6 +45,42 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += "backend"
+
+    productFlavors {
+        create("local") {
+            dimension = "backend"
+
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"${localSetting("supabase.local.url")}\""
+            )
+
+            buildConfigField(
+                "String",
+                "SUPABASE_PUBLISHABLE_KEY",
+                "\"${localSetting("supabase.local.publishableKey")}\""
+            )
+        }
+
+        create("production") {
+            dimension = "backend"
+
+            buildConfigField(
+                "String",
+                "SUPABASE_URL",
+                "\"https://elpbevyjrifdobkpbdex.supabase.co\""
+            )
+
+            buildConfigField(
+                "String",
+                "SUPABASE_PUBLISHABLE_KEY",
+                "\"sb_publishable_t3M58TkchkbB5L_4DFQF0A_8LRRtFbg\""
+            )
+        }
+    }
+
     buildTypes {
         release {
             optimization {
@@ -33,6 +95,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -45,12 +108,27 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation("androidx.navigation:navigation-compose:2.9.5")
-    testImplementation(libs.junit)
+    implementation(libs.androidx.navigation.compose)
+
+    // Base Dependencies needed for Supabase
+    implementation(platform(libs.bom))
+    implementation(libs.postgrest.kt)
+    implementation(libs.auth.kt)
+    implementation(libs.realtime.kt)
+
+    // Ktor Client Engine needed for Kotlin Target for Supabase
+    implementation(libs.ktor.client.android)
+    testImplementation(libs.ktor.client.cio)
+
+    // Location Services API for Geotagging
+    implementation(libs.play.services.location)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
 }
