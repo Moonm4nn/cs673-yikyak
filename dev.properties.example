@@ -1,7 +1,13 @@
 ## File for dev properties and variables
 
 ## Supabase fields for local run and testing
-#  Can be found using supabase status
-#  Has to be changed to 10.0.2.2:PORT because 127 loops back to emulator
-supabase.local.url=YOUR_LOCAL_URL
+# Find local Supabase connection details using `supabase status`.
+# Uses adb reverse to forward the emulator's port to the host machine.
+# Ensure adb is in PATH (e.g., %LOCALAPPDATA%\\Android\\sdk\\platform-tools).
+# Run `adb reverse tcp:54321 tcp:54321` and verify with `adb reverse --list`.
+# With adb reverse enabled, use 127.0.0.1:54321 to connect to local Supabase.
+# Alternatively, use 10.0.2.2:PORT (with the correct port) to connect directly
+# to the host machine through the Android emulator's default networking.
+
+supabase.local.url=127.0.0.1:54321
 supabase.local.publishableKey=YOUR_LOCAL_PUBLISHABLE_KEY
