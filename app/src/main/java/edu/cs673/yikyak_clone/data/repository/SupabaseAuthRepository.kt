@@ -1,10 +1,12 @@
 package edu.cs673.yikyak_clone.data.repository
 
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 
-class SupabaseAuthRepository {
-    private val supabase = SupabaseClientProvider.client
+class SupabaseAuthRepository (
+    private val supabase: SupabaseClient
+){
 
     suspend fun signInAnonymously(): String {
         supabase.auth.signInAnonymously()

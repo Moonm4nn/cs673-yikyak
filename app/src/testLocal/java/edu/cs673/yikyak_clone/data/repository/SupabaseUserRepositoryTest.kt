@@ -1,6 +1,6 @@
 package edu.cs673.yikyak_clone.data.repository
 
-import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
+import edu.cs673.yikyak_clone.data.remote.SupabaseClientProviderTest
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.*
 import org.junit.Test
@@ -8,8 +8,10 @@ import java.util.UUID
 
 class SupabaseUserRepositoryTest {
 
-    private val repository = SupabaseUserRepository(SupabaseClientProvider.client)
-    private val authRepository = SupabaseAuthRepository()
+    private val testClient = SupabaseClientProviderTest.client
+
+    private val repository = SupabaseUserRepository(testClient)
+    private val authRepository = SupabaseAuthRepository(testClient)
 
     private suspend fun getAuthenticatedUserId(): String {
         if (authRepository.currentUserId() == null) {

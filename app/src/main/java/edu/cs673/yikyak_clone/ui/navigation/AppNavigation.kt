@@ -44,7 +44,7 @@ fun AppNavigation() {
     }
 
     val authRepository = remember {
-        SupabaseAuthRepository()
+        SupabaseAuthRepository(SupabaseClientProvider.client)
     }
 
 
