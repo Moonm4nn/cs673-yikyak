@@ -1,8 +1,20 @@
 package edu.cs673.yikyak_clone.ui.screens.viewpost
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import edu.cs673.yikyak_clone.data.model.Comment
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
@@ -36,20 +48,35 @@ val mockComments = listOf(
 
 @Composable
 fun ViewPostScreen() {
-    LazyColumn {
-        item {
-            SocialPostCard(
-                username = "anonymous",
-                avatarUrl = "",
-                postImageUrl = "",
-                caption = "Is the waffle machine at the dining hall working?",
-                onLikeClick = { },
+    var commentText by remember { mutableStateOf("") }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        LazyColumn(modifier = Modifier.weight(1f)) {
+            item {
+                SocialPostCard(
+                    username = "anonymous",
+                    avatarUrl = "",
+                    postImageUrl = "",
+                    caption = "Is the waffle machine at the dining hall working?",
+                    onLikeClick = { },
+                )
+            }
+            items(mockComments) { comment ->
+                CommentRow(comment = comment)
+            }
+        }
+        Row(modifier = Modifier.fillMaxWidth()) {
+            TextField(
+                value = commentText,
+                onValueChange = { newText -> commentText = newText },
+                label = { Text("Leave a comment!") },
+                modifier = Modifier.weight(1f)
             )
+            Button(onClick = { }) { Text("Send") }
         }
-        items(mockComments) { comment ->
-            CommentRow(comment = comment)
-        }
+
     }
+
 }
 
 @Preview
