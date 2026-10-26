@@ -6,8 +6,13 @@ import io.github.jan.supabase.auth.auth
 class SupabaseAuthRepository {
     private val supabase = SupabaseClientProvider.client
 
-    suspend fun signInAnonymously() {
+    suspend fun signInAnonymously(): String {
         supabase.auth.signInAnonymously()
+
+        return supabase.auth.currentUserOrNull()?.id
+            ?: throw IllegalStateException(
+                "Anonymous sign-in succeeded but no user ID was found"
+            )
     }
 
     fun currentUserId(): String? {

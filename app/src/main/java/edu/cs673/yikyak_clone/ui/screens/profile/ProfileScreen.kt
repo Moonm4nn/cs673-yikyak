@@ -4,22 +4,30 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.cs673.yikyak_clone.data.model.SocialPost
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
 import edu.cs673.yikyak_clone.ui.components.ProfileList
 import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
+import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
 
 // ProfileScreen.kt
 @Composable
 fun ProfileScreen(
     username: String = "Username",
     onNavigateToSettings: () -> Unit,
-    onNavigateToEditProfile: () -> Unit
+    onNavigateToEditProfile: () -> Unit,
+    viewModel: UserSessionViewModel
 ) {
+    val profile by viewModel.profile
+        .collectAsStateWithLifecycle()
+
     val samplePost = SocialPost(
         id = "post-1",
         username = "anonymous",
@@ -47,9 +55,8 @@ fun ProfileScreen(
         }
         ProfileImage()
 
-        Text(text = username)
-        ProfileList()
-        Text(text = "3")
+        Text(text = profile?.username ?: "Loading...")
+        Text(text = "${profile?.karma ?: "0"}")
         Text(text = "Karma")
         GeotaggedPostScreen()
 
