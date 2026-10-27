@@ -36,6 +36,7 @@ class CreatePostViewModelTest {
         val viewModel = CreatePostViewModel(repository)
 
         viewModel.onUiAction(CreatePostUiAction.UpdatePostContent("   "))
+        viewModel.onUiAction(CreatePostUiAction.UpdateLocation(37.421, -122.084))
         viewModel.onUiAction(CreatePostUiAction.CreatePost())
 
         assertEquals("Post cannot be empty", viewModel.uiState.errorMessage)
@@ -49,6 +50,7 @@ class CreatePostViewModelTest {
         val viewModel = CreatePostViewModel(repository)
 
         viewModel.onUiAction(CreatePostUiAction.UpdatePostContent("Testing testing"))
+        viewModel.onUiAction(CreatePostUiAction.UpdateLocation(37.421, -122.084))
         viewModel.onUiAction(CreatePostUiAction.CreatePost())
 
         advanceUntilIdle()
@@ -66,6 +68,7 @@ class CreatePostViewModelTest {
 
         val tooLongText = "a".repeat(201)
         viewModel.onUiAction(CreatePostUiAction.UpdatePostContent(tooLongText))
+        viewModel.onUiAction(CreatePostUiAction.UpdateLocation(37.421, -122.084))
         viewModel.onUiAction(CreatePostUiAction.CreatePost())
 
         assertEquals("Post cannot exceed 200 characters", viewModel.uiState.errorMessage)
@@ -80,6 +83,7 @@ class CreatePostViewModelTest {
         val viewModel = CreatePostViewModel(repository)
 
         viewModel.onUiAction(CreatePostUiAction.UpdatePostContent("Test post"))
+        viewModel.onUiAction(CreatePostUiAction.UpdateLocation(37.421, -122.084))
         viewModel.onUiAction(CreatePostUiAction.CreatePost())
 
         advanceUntilIdle()

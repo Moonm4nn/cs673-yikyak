@@ -11,6 +11,8 @@ class FakePostRepository(
 
     override suspend fun createPost(
         postContent: String,
+        latitude: Double,
+        longitude: Double,
         imageUri: Uri?
     ): Result<Unit> {
         createCallCount += 1
