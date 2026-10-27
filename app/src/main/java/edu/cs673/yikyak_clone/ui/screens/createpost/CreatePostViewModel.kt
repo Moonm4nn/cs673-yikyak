@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 private const val MAX_POST_LENGTH = 200
 data class CreatePostUiState(
     val postContent: String = "",
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val postCreated: Boolean = false
@@ -22,6 +24,7 @@ data class CreatePostUiState(
 
 sealed interface CreatePostUiAction {
     data class UpdatePostContent(val input: String) : CreatePostUiAction
+    data class UpdateLocation(val lat: Double, val lng: Double) : CreatePostUiAction
     data class CreatePost(val imageUri: Uri? = null) : CreatePostUiAction
 }
 
@@ -33,6 +36,14 @@ class CreatePostViewModel(
 
     fun onUiAction(action: CreatePostUiAction) {
         when(action) {
+
+            is CreatePostUiAction.UpdateLocation -> {
+                uiState = uiState.copy(
+                    latitude = action.lat,
+                    longitude = action.lng
+                )
+            }
+
             is CreatePostUiAction.UpdatePostContent -> {
                 uiState = uiState.copy(
                     postContent = action.input,
@@ -40,6 +51,16 @@ class CreatePostViewModel(
                 )
             }
             is CreatePostUiAction.CreatePost -> {
+                val lat = uiState.latitude
+                val lng = uiState.longitude
+
+                if (lat == null || lng == null) {
+                    uiState = uiState.copy(
+                        errorMessage = "Location is required in order to post",
+                        postCreated = false)
+                    return
+                }
+
                 val content = uiState.postContent.trim()
 
                 if (content.isEmpty()) {
@@ -64,6 +85,8 @@ class CreatePostViewModel(
 
                     val result = postRepository.createPost(
                         postContent = uiState.postContent,
+                        latitude = lat,
+                        longitude = lng,
                         imageUri = action.imageUri
                     )
 
