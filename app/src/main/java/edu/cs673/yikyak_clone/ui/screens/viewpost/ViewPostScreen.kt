@@ -51,6 +51,7 @@ val mockComments = listOf(
 fun ViewPostScreen() {
     var comments by remember { mutableStateOf(mockComments) }
     var commentText by remember { mutableStateOf("") }
+    var replyingTo by remember { mutableStateOf<Comment?>(null) }
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f)) {
@@ -64,7 +65,17 @@ fun ViewPostScreen() {
                 )
             }
             items(comments) { comment ->
-                CommentRow(comment = comment)
+                CommentRow(
+                    comment = comment,
+                    onReplyClick = { replyingTo = comment },
+                )
+            }
+        }
+        val parentComment = replyingTo
+        if (parentComment != null) {
+            Row {
+                Text("Replying to ${parentComment.alias}")
+                Button(onClick = { replyingTo = null }) { Text("Cancel") }
             }
         }
         Row(modifier = Modifier.fillMaxWidth()) {
