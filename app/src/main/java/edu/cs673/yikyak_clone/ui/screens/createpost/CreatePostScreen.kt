@@ -24,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.LaunchedEffect
+import edu.cs673.yikyak_clone.data.getCurrentLocation
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 
 private const val MAX_POST_LENGTH = 200
@@ -39,6 +41,8 @@ fun CreatePostScreen(
     val repository = remember { SupabasePostRepository() }
     val viewModel = remember { CreatePostViewModel(repository) }
     val uiState = viewModel.uiState
+    val context = LocalContext.current
+
 
     LaunchedEffect(uiState.postCreated) {
         if (uiState.postCreated) {
@@ -71,8 +75,11 @@ fun CreatePostScreen(
                     )
                     Button(
                         onClick = {
+                            getCurrentLocation(context) { lat, lon ->
+                                viewModel.onUiAction(CreatePostUiAction.UpdateLocation(lat, lon))
                                 viewModel.onUiAction(CreatePostUiAction.CreatePost())
-                            },
+                            }
+                        },
                             enabled = uiState.postContent.isNotBlank() &&
                                     uiState.postContent.length <= MAX_POST_LENGTH &&
                                     !uiState.isLoading,
