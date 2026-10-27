@@ -94,11 +94,12 @@ fun ViewPostScreen() {
                     score = 0,
                     createdAt = "10/26/26",
                     alias = "Anon-1234",
-                    parentId = null,
+                    parentId = replyingTo?.id,
                 )
 
                 comments = comments + newComment
 
+                replyingTo = null
                 commentText = ""
             }) { Text("Send") }
         }
