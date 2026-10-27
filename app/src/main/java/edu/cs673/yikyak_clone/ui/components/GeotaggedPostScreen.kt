@@ -53,6 +53,12 @@ fun GeotaggedPostScreen() {
         }
     }
 
+    LaunchedEffect(Unit) {
+        permissionLauncher.launch(
+            permissionsToRequest
+        )
+    }
+
     // Confirm function, assign location permission to null and rerun permission request
     val onConfirm: () -> Unit = {
         locationPermissions = null

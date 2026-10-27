@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.CurrentLocationRequest
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 
@@ -11,7 +12,8 @@ import com.google.android.gms.location.Priority
 const val CURRENT_LOCATION_REQUEST_TIMEOUT: Long = 5000
 
 // Helper Function to get the current locations' latitude and longitude
-fun getCurrentLocation(context: Context, onLocationFetched: (lat: Double, lon: Double) -> Unit) {
+fun getCurrentLocation(context: Context, onLocationFailed: () -> Unit = {}, onLocationFetched: (lat: Double, lon: Double) -> Unit) {
+
     val fusedLPC = LocationServices.getFusedLocationProviderClient(context)
 
     // Check if Location permissions are not granted in the android manifest and returns if so
@@ -23,7 +25,10 @@ fun getCurrentLocation(context: Context, onLocationFetched: (lat: Double, lon: D
             context,
             android.Manifest.permission.ACCESS_COARSE_LOCATION
         ) != PackageManager.PERMISSION_GRANTED
-    ) return
+    ) {
+        onLocationFailed()
+        return
+    }
 
     // Create a new location request for the current location
     val locRequest = CurrentLocationRequest.Builder()
@@ -38,6 +43,11 @@ fun getCurrentLocation(context: Context, onLocationFetched: (lat: Double, lon: D
             // If the location is not null declare lat and lon return variables
             if (location != null) {
                 onLocationFetched(location.latitude, location.longitude)
+            } else {
+                onLocationFailed()
             }
+        }
+        .addOnFailureListener {
+            onLocationFailed()
         }
 }
