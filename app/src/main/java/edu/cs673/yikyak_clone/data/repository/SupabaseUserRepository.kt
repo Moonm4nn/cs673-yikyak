@@ -1,19 +1,11 @@
 package edu.cs673.yikyak_clone.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import edu.cs673.yikyak_clone.data.model.User
-import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
-import edu.cs673.yikyak_clone.data.repository.UserRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.time.Instant
-import kotlin.collections.contains
-import kotlin.collections.set
-import io.github.jan.supabase.postgrest.rpc
 
 /** New User Insert
  *
