@@ -16,6 +16,7 @@ import edu.cs673.yikyak_clone.ui.components.ProfileImage
 import edu.cs673.yikyak_clone.ui.components.ProfileList
 import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
 import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
+import kotlinx.datetime.Instant
 
 // ProfileScreen.kt
 @Composable
@@ -30,10 +31,14 @@ fun ProfileScreen(
 
     val samplePost = SocialPost(
         id = "post-1",
-        username = "anonymous",
-        avatarUrl = "",
-        postImageUrl = "",
-        caption = "Anyone know what's happening on campus today?"
+        user_id = "anonymous",
+        caption = "Anyone know what's happening on campus today?",
+        latitude = 40.7357,
+        longitude = 74.1724,
+        score = 5,
+        comment_count = 0,
+        is_removed = false,
+        created_at = Instant.parse("2026-10-27T21:38:00Z")
     )
 
     Column(
@@ -66,10 +71,16 @@ fun ProfileScreen(
         ) {
             item(key = samplePost.id) {
                 SocialPostCard(
-                    username = samplePost.username,
-                    avatarUrl = samplePost.avatarUrl,
-                    postImageUrl = samplePost.postImageUrl,
+                    user_id = samplePost.user_id,
+                    //avatarUrl = samplePost.avatarUrl,
+                    //postImageUrl = samplePost.postImageUrl,
                     caption = samplePost.caption,
+                    latitude = samplePost.latitude,
+                    longitude = samplePost.longitude,
+                    score = samplePost.score,
+                    comment_count = samplePost.comment_count,
+                    is_removed = samplePost.is_removed,
+                    created_at = samplePost.created_at,
                     onLikeClick = {
                         // Add voting behavior later
                     }
