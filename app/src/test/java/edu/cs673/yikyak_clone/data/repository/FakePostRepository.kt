@@ -1,9 +1,13 @@
 package edu.cs673.yikyak_clone.data.repository
 
 import android.net.Uri
+import edu.cs673.yikyak_clone.data.model.SocialPost
+import edu.cs673.yikyak_clone.data.repository.PostRepository
+
 
 class FakePostRepository(
-    private var result: Result<Unit> = Result.success(Unit)
+    private var result: Result<Unit> = Result.success(Unit),
+    private var posts: List<SocialPost> = emptyList()
 ) : PostRepository {
     var createCallCount: Int = 0
     var lastPostContent: String? = null
