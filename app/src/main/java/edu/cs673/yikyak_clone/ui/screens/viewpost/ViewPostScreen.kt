@@ -64,10 +64,11 @@ fun ViewPostScreen() {
                     onLikeClick = { },
                 )
             }
-            items(comments) { comment ->
+            items(threadComments(comments)) { threadedComment ->
                 CommentRow(
-                    comment = comment,
-                    onReplyClick = { replyingTo = comment },
+                    comment = threadedComment.comment,
+                    depth = threadedComment.depth,
+                    onReplyClick = { replyingTo = threadedComment.comment },
                 )
             }
         }
