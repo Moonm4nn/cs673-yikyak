@@ -234,7 +234,7 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
-                val currentUserId = accountCreationViewModel.createdUserId
+                val currentUserId = authRepository.currentUserId()
 
                 LaunchedEffect(currentUserId) {
                     currentUserId?.let { id ->
@@ -243,9 +243,6 @@ fun AppNavigation() {
                 }
 
                 ProfileScreen(
-                    username = accountCreationViewModel.user?.username
-                        ?: accountCreationViewModel.errorMessage
-                        ?: "Loading profile...",
                     onNavigateToSettings = {
                         navController.navigate(Screen.Settings.route)
                     },

@@ -9,18 +9,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.Alignment
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import edu.cs673.yikyak_clone.data.model.SocialPost
 import edu.cs673.yikyak_clone.ui.components.ProfileImage
-import edu.cs673.yikyak_clone.ui.components.ProfileList
 import edu.cs673.yikyak_clone.ui.components.GeotaggedPostScreen
 import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
 
 // ProfileScreen.kt
 @Composable
 fun ProfileScreen(
-    username: String = "Username",
     onNavigateToSettings: () -> Unit,
     onNavigateToEditProfile: () -> Unit,
     viewModel: UserSessionViewModel
