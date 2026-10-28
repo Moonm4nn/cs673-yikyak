@@ -1,6 +1,5 @@
 package edu.cs673.yikyak_clone.data.repository
 
-import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
