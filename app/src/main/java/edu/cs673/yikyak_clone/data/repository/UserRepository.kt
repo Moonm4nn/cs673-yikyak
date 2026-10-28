@@ -10,6 +10,11 @@ interface UserRepository {
     suspend fun getUser(
         userId: String
     ): User?
+
+    suspend fun completeOnboarding(
+        userId: String,
+        username: String
+    ): Result<Unit>
 }
 
 class InMemoryUserRepository(
@@ -42,5 +47,13 @@ class InMemoryUserRepository(
 
     override suspend fun getUser(userId: String): User? {
         return users[userId]
+    }
+
+    override suspend fun completeOnboarding(
+        userId: String,
+        username: String
+    ): Result<Unit> {
+        TODO("Not yet implemented in memory test for user onboarding")
+
     }
 }

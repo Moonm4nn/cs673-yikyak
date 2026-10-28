@@ -27,7 +27,7 @@ class AccountCreationViewModel(
     var createdUserId by mutableStateOf<String?>(null)
         private set
 
-    fun createUser(username: String) {
+    fun completeOnboarding(username: String) {
         if (isLoading) return
 
         viewModelScope.launch {
@@ -40,7 +40,7 @@ class AccountCreationViewModel(
                 val userId = authRepository.currentUserId()
                     ?: authRepository.signInAnonymously()
 
-                val result = userRepository.updateUsername(
+                val result = userRepository.completeOnboarding(
                     userId = userId,
                     username = username.trim()
                 )
