@@ -13,29 +13,39 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import edu.cs673.yikyak_clone.data.repository.SupabaseCommentRepository
+import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
-import kotlinx.datetime.Instant
 
 @Composable
 fun ViewPostScreen(postId: String) {
-    val viewModel = remember { ViewPostViewModel(postId, SupabaseCommentRepository()) }
+    val viewModel = remember {
+        ViewPostViewModel(
+            postId,
+            SupabasePostRepository(),
+            SupabaseCommentRepository(),
+        )
+    }
     val uiState = viewModel.uiState
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f)) {
-            item {
-                SocialPostCard(
-                    user_id = "anonymous",
-                    content = "Is the waffle machine at the dining hall working?",
-                    latitude = 40.7357,
-                    longitude = 74.1724,
-                    score = 5,
-                    comment_count = 0,
-                    is_removed = false,
-                    created_at = Instant.parse("2026-10-27T21:38:00Z"),
-                    onLikeClick = { },
-                )
+            val post = uiState.post
+            if (post != null) {
+                item {
+                    SocialPostCard(
+                        user_id = post.user_id,
+                        content = post.content,
+                        latitude = post.latitude,
+                        longitude = post.longitude,
+                        score = post.score,
+                        comment_count = post.comment_count,
+                        is_removed = post.is_removed,
+                        created_at = post.created_at,
+                        onLikeClick = {/* Add voting behavior later*/},
+                    )
+                }
             }
+
             items(threadComments(uiState.comments)) { threadedComment ->
                 CommentRow(
                     comment = threadedComment.comment,
