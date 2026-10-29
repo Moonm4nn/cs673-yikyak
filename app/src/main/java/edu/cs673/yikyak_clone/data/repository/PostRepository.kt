@@ -25,7 +25,7 @@ interface PostRepository {
     ): Result<Unit>
 
     suspend fun getPosts(
-        page: Int,
+        pageNum: Int,
         pageSize: Int
     ): List<SocialPost>
 }

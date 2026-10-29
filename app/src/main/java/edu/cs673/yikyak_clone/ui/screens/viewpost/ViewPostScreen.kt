@@ -59,7 +59,7 @@ fun ViewPostScreen() {
             item {
                 SocialPostCard(
                     user_id = "anonymous",
-                    caption = "Is the waffle machine at the dining hall working?",
+                    content = "Is the waffle machine at the dining hall working?",
                     latitude = 40.7357,
                     longitude = 74.1724,
                     score = 5,

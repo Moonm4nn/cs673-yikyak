@@ -78,7 +78,7 @@ fun ProfileScreen(
                     user_id = samplePost.user_id,
                     //avatarUrl = samplePost.avatarUrl,
                     //postImageUrl = samplePost.postImageUrl,
-                    caption = samplePost.content,
+                    content = samplePost.content,
                     latitude = samplePost.latitude,
                     longitude = samplePost.longitude,
                     score = samplePost.score,

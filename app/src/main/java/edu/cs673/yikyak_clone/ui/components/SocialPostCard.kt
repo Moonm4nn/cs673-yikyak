@@ -17,7 +17,7 @@ fun SocialPostCard(
     user_id: String,
     // avatarUrl: String,
     // postImageUrl: String?,
-    caption: String,
+    content: String,
     latitude: Double,
     longitude: Double,
     score: Int,
@@ -60,7 +60,7 @@ fun SocialPostCard(
             }*/
 
             Column(Modifier.padding(12.dp)) {
-                Text(text = caption)
+                Text(text = content)
 
                 // Add vote controls and reply count here.
             }
