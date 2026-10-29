@@ -8,5 +8,7 @@ data class SocialPost(
     val username: String,
     val avatarUrl: String,
     val postImageUrl: String,
-    val caption: String
+    val caption: String,
+    val score: Int,
+    val userVote: Int
 )

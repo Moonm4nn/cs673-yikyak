@@ -36,7 +36,9 @@ fun ProfileScreen(
         username = "anonymous",
         avatarUrl = "",
         postImageUrl = "",
-        caption = "Anyone know what's happening on campus today?"
+        caption = "Anyone know what's happening on campus today?",
+        score = 0,
+        userVote = 0
     )
 
     Column(
