@@ -6,10 +6,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 // import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Instant
 
 @Composable
@@ -61,8 +59,21 @@ fun SocialPostCard(
 
             Column(Modifier.padding(12.dp)) {
                 Text(text = content)
-
                 // Add vote controls and reply count here.
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Button(onClick = onLikeClick) {
+                    Text(text = "Like")
+                }
+                Button(onClick = { /*On reply click*/ } ) {
+                    Text(text = "$comment_count comments")
+                }
             }
         }
     }
