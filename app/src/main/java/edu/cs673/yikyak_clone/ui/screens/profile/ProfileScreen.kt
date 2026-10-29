@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
@@ -21,11 +22,12 @@ import edu.cs673.yikyak_clone.ui.components.ProfileImage
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
 
+
 // ProfileScreen.kt
 @Composable
+
 fun ProfileScreen(
     onNavigateToSettings: () -> Unit,
-    onNavigateToEditProfile: () -> Unit,
     viewModel: UserSessionViewModel
 ) {
     val profile by viewModel.profile
@@ -48,12 +50,10 @@ fun ProfileScreen(
     )
     {
         Row(
-
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Absolute.Right
         )
         {
-            Button( onClick = onNavigateToEditProfile) {
-                Text(text = "Edit")
-            }
             Button( onClick = onNavigateToSettings) {
                 Text(text = "Settings")
             }

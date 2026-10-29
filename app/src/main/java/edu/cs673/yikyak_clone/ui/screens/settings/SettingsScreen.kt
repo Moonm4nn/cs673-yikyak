@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -21,7 +20,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateToEditProfile: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -51,9 +51,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             )
             {
-                Button(onClick = {
-                    Toast.makeText(context, "ToDo", Toast.LENGTH_SHORT).show()
-                }) {
+                Button(onClick = onNavigateToEditProfile) {
                     Text("Edit Account")
                 }
                 Button(onClick = {

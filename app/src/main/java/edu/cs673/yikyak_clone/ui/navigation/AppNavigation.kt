@@ -252,9 +252,6 @@ fun AppNavigation() {
                     onNavigateToSettings = {
                         navController.navigate(Screen.Settings.route)
                     },
-                    onNavigateToEditProfile = {
-                        navController.navigate(Screen.EditProfile.route)
-                    },
                     viewModel = userSessionViewModel
                 )
             }
@@ -263,6 +260,9 @@ fun AppNavigation() {
                 SettingsScreen(
                     onBackClick = {
                         navController.popBackStack()
+                    },
+                    onNavigateToEditProfile = {
+                        navController.navigate(Screen.EditProfile.route)
                     }
                 )
             }
