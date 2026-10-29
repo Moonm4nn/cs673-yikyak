@@ -44,6 +44,14 @@ import edu.cs673.yikyak_clone.ui.screens.signup.WelcomeScreen
 import edu.cs673.yikyak_clone.ui.session.SessionBootViewModel
 import edu.cs673.yikyak_clone.ui.session.SessionState
 
+/** Screens where the bottom navbar and + floating icon are expected*/
+val navbarScreens = listOf(
+    Screen.Profile.route,
+    Screen.Channels.route,
+    Screen.Notifications.route,
+    Screen.Profile.route,
+    Screen.Feed.route
+)
 @Preview(showBackground = true)
 @Composable
 fun AppNavigation() {
@@ -162,8 +170,7 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute !in
-                listOf(Screen.Welcome.route, Screen.AccountCreation.route, Screen.SessionBoot.route)) {
+            if (currentRoute in navbarScreens) {
                 NavigationBar {
                     val destinations = listOf(
                         Screen.Feed,
@@ -207,8 +214,7 @@ fun AppNavigation() {
             }
         },
         floatingActionButton = {
-            if (currentRoute !in
-                listOf(Screen.Welcome.route, Screen.AccountCreation.route, Screen.SessionBoot.route)) {
+            if (currentRoute in navbarScreens) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(Screen.CreatePost.route)
