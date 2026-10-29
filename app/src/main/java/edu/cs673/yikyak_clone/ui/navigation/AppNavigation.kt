@@ -1,5 +1,8 @@
 package edu.cs673.yikyak_clone.ui.navigation
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -13,6 +16,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.ViewModel
@@ -158,7 +162,8 @@ fun AppNavigation() {
 
     Scaffold(
         bottomBar = {
-            if (currentRoute != Screen.Welcome.route && currentRoute != Screen.AccountCreation.route) {
+            if (currentRoute !in
+                listOf(Screen.Welcome.route, Screen.AccountCreation.route, Screen.SessionBoot.route)) {
                 NavigationBar {
                     val destinations = listOf(
                         Screen.Feed,
@@ -202,7 +207,8 @@ fun AppNavigation() {
             }
         },
         floatingActionButton = {
-            if (currentRoute != Screen.Welcome.route && currentRoute != Screen.AccountCreation.route) {
+            if (currentRoute !in
+                listOf(Screen.Welcome.route, Screen.AccountCreation.route, Screen.SessionBoot.route)) {
                 FloatingActionButton(
                     onClick = {
                         navController.navigate(Screen.CreatePost.route)
@@ -298,7 +304,13 @@ fun AppNavigation() {
             composable(Screen.SessionBoot.route) {
                 when (val state = sessionState) {
                     SessionState.Loading -> {
-                        CircularProgressIndicator()
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
 
                     is SessionState.NeedsOnboarding -> {
