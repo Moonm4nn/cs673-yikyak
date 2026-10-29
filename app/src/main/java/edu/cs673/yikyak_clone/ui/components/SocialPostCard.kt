@@ -22,7 +22,8 @@ fun SocialPostCard(
     comment_count: Int,
     is_removed: Boolean,
     created_at: Instant,
-    onLikeClick: () -> Unit
+    onLikeClick: () -> Unit,
+    onCommentsClick: () -> Unit = {},
 ) {
     Card(
         modifier = Modifier
