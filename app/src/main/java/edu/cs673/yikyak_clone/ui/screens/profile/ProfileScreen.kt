@@ -35,7 +35,7 @@ fun ProfileScreen(
     val samplePost = SocialPost(
         id = "post-1",
         user_id = "anonymous",
-        caption = "Anyone know what's happening on campus today?",
+        content = "Anyone know what's happening on campus today?",
         latitude = 40.7357,
         longitude = 74.1724,
         score = 5,
@@ -78,7 +78,7 @@ fun ProfileScreen(
                     user_id = samplePost.user_id,
                     //avatarUrl = samplePost.avatarUrl,
                     //postImageUrl = samplePost.postImageUrl,
-                    caption = samplePost.caption,
+                    caption = samplePost.content,
                     latitude = samplePost.latitude,
                     longitude = samplePost.longitude,
                     score = samplePost.score,
