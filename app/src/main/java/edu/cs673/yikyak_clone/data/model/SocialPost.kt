@@ -13,6 +13,7 @@ data class SocialPost(
     val latitude: Double,
     val longitude: Double,
     val score: Int,
+    val userVote: Int,
     val comment_count: Int,
     val is_removed: Boolean,
     val created_at: Instant

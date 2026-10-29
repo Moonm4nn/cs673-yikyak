@@ -39,6 +39,7 @@ fun ProfileScreen(
         latitude = 40.7357,
         longitude = 74.1724,
         score = 5,
+        userVote = 0,
         comment_count = 0,
         is_removed = false,
         created_at = Instant.parse("2026-10-27T21:38:00Z")

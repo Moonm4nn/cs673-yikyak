@@ -22,6 +22,7 @@ fun FeedScreen() {
         latitude = 40.7357,
         longitude = 74.1724,
         score = 5,
+        userVote = 0,
         comment_count = 0,
         is_removed = false,
         created_at = Instant.parse("2026-10-27T21:38:00Z")
@@ -40,6 +41,7 @@ fun FeedScreen() {
                 latitude = samplePost.latitude,
                 longitude = samplePost.longitude,
                 score = samplePost.score,
+                //userVote = samplePost.userVote,
                 comment_count = samplePost.comment_count,
                 is_removed = samplePost.is_removed,
                 created_at = samplePost.created_at,
