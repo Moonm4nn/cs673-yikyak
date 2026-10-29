@@ -22,7 +22,8 @@ fun SocialPostCard(
     comment_count: Int,
     is_removed: Boolean,
     created_at: Instant,
-    onLikeClick: () -> Unit
+    onLikeClick: () -> Unit,
+    onCommentsClick: () -> Unit = {},
 ) {
     Card(
         modifier = Modifier
@@ -71,7 +72,7 @@ fun SocialPostCard(
                 Button(onClick = onLikeClick) {
                     Text(text = "Like")
                 }
-                Button(onClick = { /*On reply click*/ } ) {
+                Button(onClick = onCommentsClick) {
                     Text(text = "$comment_count comments")
                 }
             }

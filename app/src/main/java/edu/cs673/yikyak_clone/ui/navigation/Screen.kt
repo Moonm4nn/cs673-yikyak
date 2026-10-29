@@ -16,4 +16,8 @@ sealed class Screen(val route: String) {
     data object AccountCreation : Screen("account_create")
 
     data object SessionBoot : Screen("session_boot")
+
+    data object ViewPost : Screen("view_post/{postId}") {
+        fun createRoute(postId: String) = "view_post/$postId"
+    }
 }

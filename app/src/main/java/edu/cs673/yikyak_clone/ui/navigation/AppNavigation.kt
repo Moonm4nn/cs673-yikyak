@@ -41,6 +41,7 @@ import edu.cs673.yikyak_clone.ui.screens.settings.SettingsScreen
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationScreen
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationViewModel
 import edu.cs673.yikyak_clone.ui.screens.signup.WelcomeScreen
+import edu.cs673.yikyak_clone.ui.screens.viewpost.ViewPostScreen
 import edu.cs673.yikyak_clone.ui.session.SessionBootViewModel
 import edu.cs673.yikyak_clone.ui.session.SessionState
 
@@ -231,7 +232,16 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Feed.route) {
-                FeedScreen()
+                FeedScreen(onPostClick = { postId ->
+                    navController.navigate(Screen.ViewPost.createRoute(postId))
+                })
+            }
+
+            composable(Screen.ViewPost.route) { backStackEntry ->
+                val postId = backStackEntry.arguments?.getString("postId")
+                if (postId != null) {
+                    ViewPostScreen(postId)
+                }
             }
 
             composable(Screen.CreatePost.route) {
