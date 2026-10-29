@@ -24,7 +24,8 @@ import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 
 @Composable
 fun FeedScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onPostClick: (String) -> Unit
 ) {
     val repository = remember { SupabasePostRepository() }
     val viewModel = remember { FeedViewModel(repository) }
@@ -77,7 +78,10 @@ fun FeedScreen(
             {
                 // Display each Social Post identified by their ID
                 items(uiState.posts, key = { it.id }) { post ->
-                    SocialPostItem(post = post)
+                    SocialPostItem(
+                        post = post,
+                        onCommentsClick = { onPostClick(post.id) }
+                    )
                 }
 
                 // Loading indicator displayed at the bottom of the list during lazy pagination
@@ -100,7 +104,7 @@ fun FeedScreen(
 
 // Social Post Item
 @Composable
-fun SocialPostItem(post: SocialPost) {
+fun SocialPostItem(post: SocialPost, onCommentsClick: () -> Unit) {
     SocialPostCard(
         user_id = post.user_id,
         content = post.content,
@@ -110,6 +114,7 @@ fun SocialPostItem(post: SocialPost) {
         comment_count = post.comment_count,
         is_removed = post.is_removed,
         created_at = post.created_at,
-        onLikeClick = {/* Add voting behavior later*/}
+        onLikeClick = {/* Add voting behavior later*/},
+        onCommentsClick = onCommentsClick,
     )
 }
