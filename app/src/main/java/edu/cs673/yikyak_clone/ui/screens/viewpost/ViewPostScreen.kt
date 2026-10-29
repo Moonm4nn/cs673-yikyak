@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import edu.cs673.yikyak_clone.data.model.Comment
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
+import kotlinx.datetime.Instant
 import java.util.UUID
 
 val mockComments = listOf(
@@ -57,10 +58,14 @@ fun ViewPostScreen() {
         LazyColumn(modifier = Modifier.weight(1f)) {
             item {
                 SocialPostCard(
-                    username = "anonymous",
-                    avatarUrl = "",
-                    postImageUrl = "",
+                    user_id = "anonymous",
                     caption = "Is the waffle machine at the dining hall working?",
+                    latitude = 40.7357,
+                    longitude = 74.1724,
+                    score = 5,
+                    comment_count = 0,
+                    is_removed = false,
+                    created_at = Instant.parse("2026-10-27T21:38:00Z"),
                     onLikeClick = { },
                 )
             }
