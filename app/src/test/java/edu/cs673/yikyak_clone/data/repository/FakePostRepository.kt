@@ -27,9 +27,13 @@ class FakePostRepository(
 
     override suspend fun getPosts(
         pageNum: Int,
-        pageSize: Int
+        pageSize: Int,
+        latitude: Double,
+        longitude: Double,
+        sortByHot: Boolean
     ): List<SocialPost> {
-        TODO("Not yet implemented")
+        createCallCount += 1
+        return posts
     }
 
     override suspend fun getPost(postId: String): Result<SocialPost> {

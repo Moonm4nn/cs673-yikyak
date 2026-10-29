@@ -26,7 +26,10 @@ interface PostRepository {
 
     suspend fun getPosts(
         pageNum: Int,
-        pageSize: Int
+        pageSize: Int,
+        latitude: Double,
+        longitude: Double,
+        sortByHot: Boolean
     ): List<SocialPost>
 
     suspend fun getPost(
@@ -54,18 +57,30 @@ class SupabasePostRepository(
     }
 
     // Gets a single page worth of posts
-    override suspend fun getPosts(pageNum: Int, pageSize: Int): List<SocialPost> {
-        // Calculate the range of posts to fetch
+    override suspend fun getPosts(
+        pageNum: Int,
+        pageSize: Int,
+        latitude: Double,
+        longitude: Double,
+        sortByHot: Boolean
+    ): List<SocialPost> {
+        // Calculate the index range of posts to fetch
         val fromPostIndex = pageNum * pageSize
         val toPostIndex = fromPostIndex + pageSize - 1
 
-        // Fetch the posts from the database
-        val jsonArrayResult = supabase.postgrest.from("posts").select {
-                // Order by newest first
-                order(column = "created_at", order = Order.DESCENDING)
-                // Get the relevant range of posts for current page
-                range(from = fromPostIndex.toLong(), to = toPostIndex.toLong())
+        // Fetch posts within the specified radius
+        val jsonArrayResult = supabase.postgrest.rpc(
+            function = "get_posts_within_radius",
+            parameters = buildJsonObject {
+                put("u_lat", latitude)
+                put("u_lng", longitude)
+                put("rad_km", 5.0)
+                put("page_offset", fromPostIndex)
+                put("page_limit", toPostIndex)
+                put("sort_by_hot", sortByHot)
             }
+        )
+
 
         // Convert the JSON array to a list of posts and return it
         return jsonArrayResult.decodeList<SocialPost>()

@@ -6,11 +6,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import edu.cs673.yikyak_clone.data.model.SocialPost
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,6 +23,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
+import androidx.compose.ui.platform.LocalContext
+import edu.cs673.yikyak_clone.data.getCurrentLocation
 
 @Composable
 fun FeedScreen(
@@ -31,10 +35,15 @@ fun FeedScreen(
     val viewModel = remember { FeedViewModel(repository) }
     val uiState = viewModel.uiState
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
-    // Trigger initial load when screen enters composition
+    // Get user's location and trigger initial load when feed opens
     LaunchedEffect(Unit) {
-        viewModel.onUiAction(FeedUiAction.LoadInitialPosts)
+        getCurrentLocation(context) { lat, lng ->
+            viewModel.onUiAction(
+                FeedUiAction.UpdateLocation(lat, lng)
+            )
+        }
     }
 
     // Monitor list scrolling position to load subsequent database chunks
@@ -47,53 +56,78 @@ fun FeedScreen(
                 }
             }
     }
-
-    Box(
-        modifier = Modifier
+    Column(
+        modifier = Modifier.fillMaxSize()
             .fillMaxSize()
             .padding()
     )
     {
-        // Display Loading Indicator while posts are being loaded
-        if (uiState.isLoading && uiState.posts.isEmpty()) {
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        }
-        // Display Error Message if it exists
-        else if (!uiState.errorMessage.isNullOrBlank() && uiState.posts.isEmpty()) {
+        Button(
+            onClick = {
+                // Toggle between hot and new posts
+                viewModel.onUiAction(
+                    FeedUiAction.SetSortByHot(
+                        isHot = !uiState.sortByHot
+                    )
+                )
+            },
+            // Disable button if loading or refreshing
+            enabled = !uiState.isLoading && !uiState.isRefreshing,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+        ) {
             Text(
-                text = uiState.errorMessage,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(16.dp),
-                textAlign = TextAlign.Center
+                // Alternate text between hot and new
+                text = if (uiState.sortByHot) "Hot" else "New"
             )
         }
-        // Display Feed of Posts if everything is ready
-        else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier.fillMaxSize()
-            )
-            {
-                // Display each Social Post identified by their ID
-                items(uiState.posts, key = { it.id }) { post ->
-                    SocialPostItem(
-                        post = post,
-                        onCommentsClick = { onPostClick(post.id) }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding()
+        )
+        {
+            // Display Loading Indicator while posts are being loaded
+            if (uiState.isLoading && uiState.posts.isEmpty()) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+            // Display Error Message if it exists
+            else if (!uiState.errorMessage.isNullOrBlank() && uiState.posts.isEmpty()) {
+                Text(
+                    text = uiState.errorMessage,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(16.dp),
+                    textAlign = TextAlign.Center
+                )
+            }
+            // Display Feed of Posts if everything is ready
+            else {
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize()
+                )
+                {
+                    // Display each Social Post identified by their ID
+                    items(uiState.posts, key = { it.id }) { post ->
+                        SocialPostItem(post = post,
+                    onCommentsClick = { onPostClick(post.id) }
                     )
                 }
 
-                // Loading indicator displayed at the bottom of the list during lazy pagination
-                if (uiState.isLoading && uiState.posts.isNotEmpty()) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(strokeWidth = 2.dp)
+                    // Loading indicator displayed at the bottom of the list during lazy pagination
+                    if (uiState.isLoading && uiState.posts.isNotEmpty()) {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(strokeWidth = 2.dp)
+                            }
                         }
                     }
                 }
