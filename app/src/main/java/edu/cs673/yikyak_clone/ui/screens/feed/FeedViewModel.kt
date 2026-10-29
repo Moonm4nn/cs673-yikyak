@@ -1,10 +1,45 @@
 package edu.cs673.yikyak_clone.ui.screens.feed
+
 import androidx.lifecycle.ViewModel
 import edu.cs673.yikyak_clone.data.model.SocialPost
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
+import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
+import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
+import kotlinx.coroutines.launch
 
+// Values for the UI state of the feed screen.
+data class FeedUiState(
+    val posts: List<SocialPost> = emptyList(),
+    val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val errorMessage: String? = null,
+    val endReached: Boolean = false
+)
+
+// Create interface for feed screen actions
+sealed interface FeedUiAction {
+    object LoadInitialPosts : FeedUiAction
+    object LoadNextPage : FeedUiAction
+    object RefreshFeed : FeedUiAction
+}
 
 class FeedViewModel(
+    private val repository: SupabasePostRepository
 ) : ViewModel() {
+
+    var uiState by mutableStateOf(FeedUiState())
+        private set
+
+    // Values for pagination
+    private val pageSize = 15
+    private var currPage = 0
+    private var isFetchLocked = false
+
+    // Create a Supabase client
+    private val supabaseClient = SupabaseClientProvider.client
 
     // Post ids with a vote request currently in flight (ignore rapid repeat taps)
     private val votesInFlight = mutableSetOf<String>()
@@ -40,5 +75,65 @@ class FeedViewModel(
 
     private fun updatePost(postId: String, transform: (SocialPost) -> SocialPost) {
 //        posts.update { list -> list.map { if (it.id == postId) transform(it) else it } }
+    }
+
+    // Handle UI actions
+    fun onUiAction(action: FeedUiAction) {
+        when (action) {
+            // When various actions are detected, call appropriate methods
+            is FeedUiAction.LoadInitialPosts -> loadPosts(isRefresh = false, isNextPage = false)
+            is FeedUiAction.RefreshFeed -> loadPosts(isRefresh = true, isNextPage = false)
+            is FeedUiAction.LoadNextPage -> loadPosts(isRefresh = false, isNextPage = true)
+        }
+    }
+
+    // Load posts from the repository
+    private fun loadPosts(isRefresh: Boolean, isNextPage: Boolean) {
+        // Ignore if already loading
+        if (isFetchLocked || (isNextPage && uiState.endReached)) return
+
+        // Lock to prevent multiple loads at once
+        isFetchLocked = true
+
+        // Set loading state
+        if (!isNextPage) {
+            uiState = uiState.copy(
+                isLoading = !isRefresh,
+                isRefreshing = isRefresh,
+                errorMessage = null
+            )
+        }
+
+        // Reset pagination values
+        val targetPage = if (isNextPage) currPage + 1 else 0
+
+        viewModelScope.launch {
+
+            // Attempt to load posts from the repository
+            try {
+                // Use the repository to load posts
+                val newPosts = repository.getPosts(pageNum = targetPage, pageSize = pageSize)
+
+                currPage = targetPage
+                uiState = uiState.copy(
+                    posts = if (isNextPage) uiState.posts + newPosts else newPosts,
+                    endReached = newPosts.size < pageSize,
+                    isLoading = false,
+                    isRefreshing = false
+                )
+
+            // Handle errors
+            } catch (e: Exception) {
+                uiState = uiState.copy(
+                    errorMessage = e.localizedMessage ?: "Failed to load posts",
+                    isLoading = false,
+                    isRefreshing = false
+                )
+
+            // Handle cancellation
+            } finally {
+                isFetchLocked = false
+            }
+        }
     }
 }

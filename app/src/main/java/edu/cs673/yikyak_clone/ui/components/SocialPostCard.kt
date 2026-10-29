@@ -6,17 +6,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.layout.ContentScale
 // import coil.compose.AsyncImage
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Instant
 
 @Composable
 fun SocialPostCard(
-    username: String,
-    avatarUrl: String,
-    postImageUrl: String?,
-    caption: String,
+    user_id: String,
+    // avatarUrl: String,
+    // postImageUrl: String?,
+    content: String,
+    latitude: Double,
+    longitude: Double,
+    score: Int,
+    comment_count: Int,
+    is_removed: Boolean,
+    created_at: Instant,
     onLikeClick: () -> Unit
 ) {
     Card(
@@ -36,12 +41,12 @@ fun SocialPostCard(
             ) {
                 // Keep your existing avatar and username UI here.
                 Text(
-                    text = username,
+                    text = user_id,
                     fontWeight = FontWeight.Bold
                 )
             }
 
-            if (!postImageUrl.isNullOrBlank()) {
+            /*if (!postImageUrl.isNullOrBlank()) {
                 /*AsyncImage(
                     model = postImageUrl,
                     contentDescription = "Post image",
@@ -50,12 +55,25 @@ fun SocialPostCard(
                         .heightIn(max = 400.dp),
                     contentScale = ContentScale.Crop
                 )*/
-            }
+            }*/
 
             Column(Modifier.padding(12.dp)) {
-                Text(text = caption)
-
+                Text(text = content)
                 // Add vote controls and reply count here.
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            )
+            {
+                Button(onClick = onLikeClick) {
+                    Text(text = "Like")
+                }
+                Button(onClick = { /*On reply click*/ } ) {
+                    Text(text = "$comment_count comments")
+                }
             }
         }
     }

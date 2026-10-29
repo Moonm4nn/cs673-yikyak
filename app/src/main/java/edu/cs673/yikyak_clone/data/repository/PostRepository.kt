@@ -1,8 +1,10 @@
 package edu.cs673.yikyak_clone.data.repository
 
 import android.net.Uri
+import edu.cs673.yikyak_clone.data.model.SocialPost
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
+import io.github.jan.supabase.postgrest.query.Order
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 
 import kotlinx.serialization.json.buildJsonObject
@@ -21,6 +23,11 @@ interface PostRepository {
         longitude: Double,
         imageUri: Uri? = null
     ): Result<Unit>
+
+    suspend fun getPosts(
+        pageNum: Int,
+        pageSize: Int
+    ): List<SocialPost>
 }
 
 class SupabasePostRepository(
@@ -40,5 +47,23 @@ class SupabasePostRepository(
                 put("p_lng", longitude)
             }
         )
+    }
+
+    // Gets a single page worth of posts
+    override suspend fun getPosts(pageNum: Int, pageSize: Int): List<SocialPost> {
+        // Calculate the range of posts to fetch
+        val fromPostIndex = pageNum * pageSize
+        val toPostIndex = fromPostIndex + pageSize - 1
+
+        // Fetch the posts from the database
+        val jsonArrayResult = supabase.postgrest.from("posts").select {
+                // Order by newest first
+                order(column = "created_at", order = Order.DESCENDING)
+                // Get the relevant range of posts for current page
+                range(from = fromPostIndex.toLong(), to = toPostIndex.toLong())
+            }
+
+        // Convert the JSON array to a list of posts and return it
+        return jsonArrayResult.decodeList<SocialPost>()
     }
 }

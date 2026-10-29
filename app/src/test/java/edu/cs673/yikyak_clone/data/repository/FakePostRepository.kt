@@ -24,4 +24,11 @@ class FakePostRepository(
         lastImageUri = imageUri
         return result
     }
+
+    override suspend fun getPosts(
+        pageNum: Int,
+        pageSize: Int
+    ): List<SocialPost> {
+        TODO("Not yet implemented")
+    }
 }
