@@ -35,4 +35,8 @@ class FakePostRepository(
         createCallCount += 1
         return posts
     }
+
+    override suspend fun getPost(postId: String): Result<SocialPost> {
+        TODO("Not yet implemented")
+    }
 }

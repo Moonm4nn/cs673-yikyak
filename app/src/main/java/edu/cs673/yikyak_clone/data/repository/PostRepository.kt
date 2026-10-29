@@ -31,6 +31,10 @@ interface PostRepository {
         longitude: Double,
         sortByHot: Boolean
     ): List<SocialPost>
+
+    suspend fun getPost(
+        postId: String
+    ): Result<SocialPost>
 }
 
 class SupabasePostRepository(
@@ -80,5 +84,11 @@ class SupabasePostRepository(
 
         // Convert the JSON array to a list of posts and return it
         return jsonArrayResult.decodeList<SocialPost>()
+    }
+
+    override suspend fun getPost(postId: String): Result<SocialPost> = runCatching {
+        supabase.postgrest.from("posts").select {
+            filter { eq("id", postId) }
+        }.decodeSingle<SocialPost>()
     }
 }

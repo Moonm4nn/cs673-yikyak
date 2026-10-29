@@ -72,7 +72,7 @@ fun SocialPostCard(
                 Button(onClick = onLikeClick) {
                     Text(text = "Like")
                 }
-                Button(onClick = { /*On reply click*/ } ) {
+                Button(onClick = onCommentsClick) {
                     Text(text = "$comment_count comments")
                 }
             }

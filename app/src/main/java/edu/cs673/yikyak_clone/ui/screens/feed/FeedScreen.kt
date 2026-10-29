@@ -112,11 +112,10 @@ fun FeedScreen(
                 {
                     // Display each Social Post identified by their ID
                     items(uiState.posts, key = { it.id }) { post ->
-                        SocialPostItem(
-                            post = post,
-                            onCommentsClick = { onPostClick(post.id) }
-                        )
-                    }
+                        SocialPostItem(post = post,
+                    onCommentsClick = { onPostClick(post.id) }
+                    )
+                }
 
                     // Loading indicator displayed at the bottom of the list during lazy pagination
                     if (uiState.isLoading && uiState.posts.isNotEmpty()) {
