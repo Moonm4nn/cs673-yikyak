@@ -6,12 +6,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
@@ -51,22 +54,24 @@ fun SettingsScreen(
                 Button(onClick = {
                     Toast.makeText(context, "ToDo", Toast.LENGTH_SHORT).show()
                 }) {
-                    Text("Setting 1")
+                    Text("Edit Account")
                 }
                 Button(onClick = {
                     Toast.makeText(context, "ToDo", Toast.LENGTH_SHORT).show()
                 }) {
-                    Text("Setting 2")
+                    Text("Report Account")
                 }
                 Button(onClick = {
                     Toast.makeText(context, "ToDo", Toast.LENGTH_SHORT).show()
                 }) {
                     Text("Setting 3")
                 }
-                Button(onClick = {
+                Button(
+                    colors = ButtonDefaults.buttonColors(Color.Red),
+                    onClick = {
                     Toast.makeText(context, "ToDo", Toast.LENGTH_SHORT).show()
                 }) {
-                    Text("Log Out")
+                    Text("Delete Account")
                 }
 
             }
