@@ -31,4 +31,8 @@ class FakePostRepository(
     ): List<SocialPost> {
         TODO("Not yet implemented")
     }
+
+    override suspend fun getPost(postId: String): Result<SocialPost> {
+        TODO("Not yet implemented")
+    }
 }

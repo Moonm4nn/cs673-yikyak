@@ -10,110 +10,65 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import edu.cs673.yikyak_clone.data.model.Comment
+import edu.cs673.yikyak_clone.data.repository.SupabaseCommentRepository
+import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
-import kotlinx.datetime.Instant
-import java.util.UUID
-
-val mockComments = listOf(
-    Comment(
-        id = "1",
-        content = "Yes it works!",
-        score = 2,
-        createdAt = "10/24/26",
-        alias = "GreenOtter",
-        parentId = null,
-    ),
-    Comment(
-        id = "2",
-        content = "are you sure?",
-        score = 1,
-        createdAt = "10/24/26",
-        alias = "PurpleFish",
-        parentId = "1",
-    ),
-    Comment(
-        id = "3",
-        content = "yeah, I saw it too",
-        score = 2,
-        createdAt = "10/24/26",
-        alias = "OrangeCat",
-        parentId = "2",
-    ),
-)
 
 @Composable
-fun ViewPostScreen() {
-    var comments by remember { mutableStateOf(mockComments) }
-    var commentText by remember { mutableStateOf("") }
-    var replyingTo by remember { mutableStateOf<Comment?>(null) }
+fun ViewPostScreen(postId: String) {
+    val viewModel = remember {
+        ViewPostViewModel(
+            postId,
+            SupabasePostRepository(),
+            SupabaseCommentRepository(),
+        )
+    }
+    val uiState = viewModel.uiState
 
     Column(modifier = Modifier.fillMaxSize()) {
         LazyColumn(modifier = Modifier.weight(1f)) {
-            item {
-                SocialPostCard(
-                    user_id = "anonymous",
-                    content = "Is the waffle machine at the dining hall working?",
-                    latitude = 40.7357,
-                    longitude = 74.1724,
-                    score = 5,
-                    comment_count = 0,
-                    is_removed = false,
-                    created_at = Instant.parse("2026-10-27T21:38:00Z"),
-                    onLikeClick = { },
-                )
+            val post = uiState.post
+            if (post != null) {
+                item {
+                    SocialPostCard(
+                        user_id = post.user_id,
+                        content = post.content,
+                        latitude = post.latitude,
+                        longitude = post.longitude,
+                        score = post.score,
+                        comment_count = post.comment_count,
+                        is_removed = post.is_removed,
+                        created_at = post.created_at,
+                        onLikeClick = {/* Add voting behavior later*/},
+                    )
+                }
             }
-            items(threadComments(comments)) { threadedComment ->
+
+            items(threadComments(uiState.comments)) { threadedComment ->
                 CommentRow(
                     comment = threadedComment.comment,
                     depth = threadedComment.depth,
-                    onReplyClick = { replyingTo = threadedComment.comment },
+                    onReplyClick = { viewModel.onReplyClick(threadedComment.comment) },
                 )
             }
         }
-        val parentComment = replyingTo
+        val parentComment = uiState.replyingTo
         if (parentComment != null) {
             Row {
                 Text("Replying to ${parentComment.alias}")
-                Button(onClick = { replyingTo = null }) { Text("Cancel") }
+                Button(onClick = { viewModel.onCancelReply() }) { Text("Cancel") }
             }
         }
         Row(modifier = Modifier.fillMaxWidth()) {
             TextField(
-                value = commentText,
-                onValueChange = { newText -> commentText = newText },
+                value = uiState.commentText,
+                onValueChange = { newText -> viewModel.onCommentTextChange(newText) },
                 label = { Text("Leave a comment!") },
                 modifier = Modifier.weight(1f)
             )
-            Button(onClick = {
-                if (commentText.isBlank()) return@Button
-
-                val newComment = Comment(
-                    id = UUID.randomUUID().toString(),
-                    content = commentText.trim(),
-                    score = 0,
-                    createdAt = "10/26/26",
-                    alias = "Anon-1234",
-                    parentId = replyingTo?.id,
-                )
-
-                comments = comments + newComment
-
-                replyingTo = null
-                commentText = ""
-            }) { Text("Send") }
+            Button(onClick = { viewModel.onSendClick() }) { Text("Send") }
         }
     }
-}
-
-@Preview
-@Composable
-fun ViewPostScreenPreview() {
-    ViewPostScreen()
 }
