@@ -21,6 +21,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
+import androidx.compose.ui.platform.LocalContext
+import edu.cs673.yikyak_clone.data.getCurrentLocation
 
 @Composable
 fun FeedScreen(
@@ -30,10 +32,15 @@ fun FeedScreen(
     val viewModel = remember { FeedViewModel(repository) }
     val uiState = viewModel.uiState
     val listState = rememberLazyListState()
+    val context = LocalContext.current
 
-    // Trigger initial load when screen enters composition
+    // Get user's location and trigger initial load when feed opens
     LaunchedEffect(Unit) {
-        viewModel.onUiAction(FeedUiAction.LoadInitialPosts)
+        getCurrentLocation(context) { lat, lng ->
+            viewModel.onUiAction(
+                FeedUiAction.UpdateLocation(lat, lng)
+            )
+        }
     }
 
     // Monitor list scrolling position to load subsequent database chunks

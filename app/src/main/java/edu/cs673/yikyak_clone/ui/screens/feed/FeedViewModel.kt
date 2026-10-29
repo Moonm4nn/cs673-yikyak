@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 // Values for the UI state of the feed screen.
 data class FeedUiState(
     val posts: List<SocialPost> = emptyList(),
+    val latitude: Double? = null,
+    val longitude: Double? = null,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
@@ -21,7 +23,7 @@ data class FeedUiState(
 
 // Create interface for feed screen actions
 sealed interface FeedUiAction {
-    object LoadInitialPosts : FeedUiAction
+    data class UpdateLocation(val lat: Double, val lng: Double) : FeedUiAction
     object LoadNextPage : FeedUiAction
     object RefreshFeed : FeedUiAction
 }
@@ -80,8 +82,19 @@ class FeedViewModel(
     // Handle UI actions
     fun onUiAction(action: FeedUiAction) {
         when (action) {
-            // When various actions are detected, call appropriate methods
-            is FeedUiAction.LoadInitialPosts -> loadPosts(isRefresh = false, isNextPage = false)
+            is FeedUiAction.UpdateLocation -> {
+                //  Copy latitude and longitude if updated and not null
+                if (uiState.latitude == null || uiState.longitude == null) {
+                    uiState = uiState.copy(
+                        latitude = action.lat,
+                        longitude = action.lng,
+                        errorMessage = null
+                    )
+
+                    currPage = 0
+                    loadPosts(isRefresh = false, isNextPage = false)
+                }
+            }
             is FeedUiAction.RefreshFeed -> loadPosts(isRefresh = true, isNextPage = false)
             is FeedUiAction.LoadNextPage -> loadPosts(isRefresh = false, isNextPage = true)
         }
@@ -89,6 +102,10 @@ class FeedViewModel(
 
     // Load posts from the repository
     private fun loadPosts(isRefresh: Boolean, isNextPage: Boolean) {
+        // Ignore if no location available
+        val latitude = uiState.latitude ?: return
+        val longitude = uiState.longitude ?: return
+
         // Ignore if already loading
         if (isFetchLocked || (isNextPage && uiState.endReached)) return
 
@@ -112,7 +129,12 @@ class FeedViewModel(
             // Attempt to load posts from the repository
             try {
                 // Use the repository to load posts
-                val newPosts = repository.getPosts(pageNum = targetPage, pageSize = pageSize)
+                val newPosts = repository.getPosts(
+                    pageNum = targetPage,
+                    pageSize = pageSize,
+                    latitude = latitude,
+                    longitude = longitude
+                )
 
                 currPage = targetPage
                 uiState = uiState.copy(
