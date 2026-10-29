@@ -1,38 +1,44 @@
 package edu.cs673.yikyak_clone.ui.navigation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import edu.cs673.yikyak_clone.ui.screens.*
-import edu.cs673.yikyak_clone.ui.screens.feed.*
-import edu.cs673.yikyak_clone.ui.screens.profile.*
-import edu.cs673.yikyak_clone.ui.screens.createpost.CreatePostScreen
-import edu.cs673.yikyak_clone.ui.screens.editprofile.*
-import edu.cs673.yikyak_clone.ui.screens.settings.*
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
-import java.util.UUID
-
-import edu.cs673.yikyak_clone.data.repository.InMemoryUserRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseUserRepository
 import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
-import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationViewModel
+import edu.cs673.yikyak_clone.ui.screens.ChannelsScreen
+import edu.cs673.yikyak_clone.ui.screens.NotificationsScreen
+import edu.cs673.yikyak_clone.ui.screens.createpost.CreatePostScreen
+import edu.cs673.yikyak_clone.ui.screens.editprofile.EditProfileScreen
+import edu.cs673.yikyak_clone.ui.screens.feed.FeedScreen
+import edu.cs673.yikyak_clone.ui.screens.profile.ProfileScreen
+import edu.cs673.yikyak_clone.ui.screens.settings.SettingsScreen
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationScreen
+import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationViewModel
 import edu.cs673.yikyak_clone.ui.screens.signup.WelcomeScreen
+import edu.cs673.yikyak_clone.ui.session.SessionBootViewModel
+import edu.cs673.yikyak_clone.ui.session.SessionState
 
 @Preview(showBackground = true)
 @Composable
@@ -46,7 +52,6 @@ fun AppNavigation() {
     val authRepository = remember {
         SupabaseAuthRepository(SupabaseClientProvider.client)
     }
-
 
     val accountCreationViewModel: AccountCreationViewModel =
         viewModel(
@@ -99,6 +104,39 @@ fun AppNavigation() {
                 }
             }
         )
+
+    val sessionBootViewModelFactory = remember(
+        authRepository,
+        userRepository
+    ) {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(
+                modelClass: Class<T>
+            ): T {
+                if (modelClass.isAssignableFrom(
+                        SessionBootViewModel::class.java
+                    )
+                ) {
+                    @Suppress("UNCHECKED_CAST")
+                    return SessionBootViewModel(
+                        authRepository,
+                        userRepository
+                    ) as T
+                }
+
+                throw IllegalArgumentException(
+                    "Unknown ViewModel class: ${modelClass.name}"
+                )
+            }
+        }
+    }
+
+    val sessionBootViewModel: SessionBootViewModel = viewModel(
+        factory = sessionBootViewModelFactory
+    )
+
+    val sessionState by
+    sessionBootViewModel.state.collectAsState()
 
     LaunchedEffect(
         accountCreationViewModel.createdUserId
@@ -177,7 +215,7 @@ fun AppNavigation() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Welcome.route,
+            startDestination = Screen.SessionBoot.route,
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Feed.route) {
@@ -202,7 +240,7 @@ fun AppNavigation() {
             }
 
             composable(Screen.Profile.route) {
-                val currentUserId = accountCreationViewModel.createdUserId
+                val currentUserId = authRepository.currentUserId()
 
                 LaunchedEffect(currentUserId) {
                     currentUserId?.let { id ->
@@ -211,9 +249,6 @@ fun AppNavigation() {
                 }
 
                 ProfileScreen(
-                    username = accountCreationViewModel.user?.username
-                        ?: accountCreationViewModel.errorMessage
-                        ?: "Loading profile...",
                     onNavigateToSettings = {
                         navController.navigate(Screen.Settings.route)
                     },
@@ -251,13 +286,58 @@ fun AppNavigation() {
             composable(Screen.AccountCreation.route) {
                 AccountCreationScreen(
                     onCreateUser = { username ->
-                        accountCreationViewModel.createUser(
+                        accountCreationViewModel.completeOnboarding(
                             username = username
                         )
                     },
                     isLoading = accountCreationViewModel.isLoading,
                     creationError = accountCreationViewModel.errorMessage
                 )
+            }
+
+            composable(Screen.SessionBoot.route) {
+                when (val state = sessionState) {
+                    SessionState.Loading -> {
+                        CircularProgressIndicator()
+                    }
+
+                    is SessionState.NeedsOnboarding -> {
+                        LaunchedEffect(state.userId) {
+                            navController.navigate(
+                                Screen.Welcome.route
+                            ) {
+                                popUpTo(Screen.SessionBoot.route) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+
+                    is SessionState.Ready -> {
+                        LaunchedEffect(state.userId) {
+                            navController.navigate(Screen.Feed.route) {
+                                popUpTo(Screen.SessionBoot.route) {
+                                    inclusive = true
+                                }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+
+                    is SessionState.Error -> {
+                        androidx.compose.foundation.layout.Column {
+                            Text(state.message)
+                            Button(
+                                onClick = {
+                                    sessionBootViewModel.boot()
+                                }
+                            ) {
+                                Text("Retry")
+                            }
+                        }
+                    }
+                }
             }
         }
     }
