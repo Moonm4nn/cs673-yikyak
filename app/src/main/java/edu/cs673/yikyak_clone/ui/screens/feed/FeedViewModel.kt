@@ -15,6 +15,7 @@ data class FeedUiState(
     val posts: List<SocialPost> = emptyList(),
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val sortByHot: Boolean = false,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val errorMessage: String? = null,
@@ -24,6 +25,7 @@ data class FeedUiState(
 // Create interface for feed screen actions
 sealed interface FeedUiAction {
     data class UpdateLocation(val lat: Double, val lng: Double) : FeedUiAction
+    data class SetSortByHot(val isHot: Boolean) : FeedUiAction
     object LoadNextPage : FeedUiAction
     object RefreshFeed : FeedUiAction
 }
@@ -95,6 +97,20 @@ class FeedViewModel(
                     loadPosts(isRefresh = false, isNextPage = false)
                 }
             }
+            is FeedUiAction.SetSortByHot -> {
+                //  Copy sort order if updated
+                if (uiState.sortByHot != action.isHot) {
+                    uiState = uiState.copy(
+                        sortByHot = action.isHot,
+                        posts = emptyList(),
+                        endReached = false,
+                        errorMessage = null
+                    )
+
+                    currPage = 0
+                    loadPosts(isRefresh = false, isNextPage = false)
+                }
+            }
             is FeedUiAction.RefreshFeed -> loadPosts(isRefresh = true, isNextPage = false)
             is FeedUiAction.LoadNextPage -> loadPosts(isRefresh = false, isNextPage = true)
         }
@@ -105,6 +121,7 @@ class FeedViewModel(
         // Ignore if no location available
         val latitude = uiState.latitude ?: return
         val longitude = uiState.longitude ?: return
+        val sortByHot = uiState.sortByHot
 
         // Ignore if already loading
         if (isFetchLocked || (isNextPage && uiState.endReached)) return
@@ -133,7 +150,8 @@ class FeedViewModel(
                     pageNum = targetPage,
                     pageSize = pageSize,
                     latitude = latitude,
-                    longitude = longitude
+                    longitude = longitude,
+                    sortByHot = sortByHot
                 )
 
                 currPage = targetPage

@@ -28,7 +28,8 @@ interface PostRepository {
         pageNum: Int,
         pageSize: Int,
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        sortByHot: Boolean
     ): List<SocialPost>
 }
 
@@ -56,7 +57,8 @@ class SupabasePostRepository(
         pageNum: Int,
         pageSize: Int,
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        sortByHot: Boolean
     ): List<SocialPost> {
         // Calculate the index range of posts to fetch
         val fromPostIndex = pageNum * pageSize
@@ -71,6 +73,7 @@ class SupabasePostRepository(
                 put("rad_km", 5.0)
                 put("page_offset", fromPostIndex)
                 put("page_limit", toPostIndex)
+                put("sort_by_hot", sortByHot)
             }
         )
 
