@@ -1,10 +1,11 @@
 CREATE OR REPLACE FUNCTION public.get_posts_within_radius(u_lat double precision, u_lng double precision, rad_km double precision, page_offset integer DEFAULT 0, page_limit integer DEFAULT 20, sort_by_hot boolean DEFAULT false)
- RETURNS SETOF posts
+ RETURNS SETOF public.posts
  LANGUAGE sql
  STABLE
+ SET search_path = public, extensions
 AS $function$
     SELECT p.*
-    FROM posts p
+    FROM public.posts p
     WHERE ST_DWithin(
         p.location,
         ST_SetSRID(
