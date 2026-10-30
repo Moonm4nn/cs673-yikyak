@@ -82,12 +82,12 @@ fun ProfileScreen(
                     latitude = samplePost.latitude,
                     longitude = samplePost.longitude,
                     score = samplePost.score,
+                    userVote = samplePost.userVote,
                     comment_count = samplePost.comment_count,
                     is_removed = samplePost.is_removed,
                     created_at = samplePost.created_at,
-                    onLikeClick = {
-                        // Add voting behavior later
-                    }
+                    onUpvote = { },
+                    onDownvote = { }
                 )
             }
         }

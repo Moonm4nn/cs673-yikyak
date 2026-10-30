@@ -16,23 +16,30 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
+import edu.cs673.yikyak_clone.data.repository.SupabaseVoteRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
 import androidx.compose.ui.platform.LocalContext
 import edu.cs673.yikyak_clone.data.getCurrentLocation
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+
 
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
     onPostClick: (String) -> Unit
 ) {
-    val repository = remember { SupabasePostRepository() }
-    val viewModel = remember { FeedViewModel(repository) }
+    val postRepository = remember { SupabasePostRepository() }
+    val voteRepository = remember { SupabaseVoteRepository() }
+    val viewModel = remember { FeedViewModel(postRepository, voteRepository) }
     val uiState = viewModel.uiState
     val listState = rememberLazyListState()
     val context = LocalContext.current
@@ -112,8 +119,11 @@ fun FeedScreen(
                 {
                     // Display each Social Post identified by their ID
                     items(uiState.posts, key = { it.id }) { post ->
-                        SocialPostItem(post = post,
-                    onCommentsClick = { onPostClick(post.id) }
+                        SocialPostItem(
+                            post = post,
+                            onCommentsClick = { onPostClick(post.id) },
+                            onUpvote = { viewModel.onVote(post.id, 1) },
+                            onDownvote = { viewModel.onVote(post.id, -1) }
                     )
                 }
 
@@ -138,17 +148,24 @@ fun FeedScreen(
 
 // Social Post Item
 @Composable
-fun SocialPostItem(post: SocialPost, onCommentsClick: () -> Unit) {
+fun SocialPostItem(
+    post: SocialPost,
+    onCommentsClick: () -> Unit,
+    onUpvote: () -> Unit = {},
+    onDownvote: () -> Unit = {}
+    ) {
     SocialPostCard(
         user_id = post.user_id,
         content = post.content,
         latitude = post.latitude,
         longitude = post.longitude,
         score = post.score,
+        userVote = post.userVote,
         comment_count = post.comment_count,
         is_removed = post.is_removed,
         created_at = post.created_at,
-        onLikeClick = {/* Add voting behavior later*/},
         onCommentsClick = onCommentsClick,
+        onUpvote = onUpvote,
+        onDownvote = onDownvote
     )
 }
