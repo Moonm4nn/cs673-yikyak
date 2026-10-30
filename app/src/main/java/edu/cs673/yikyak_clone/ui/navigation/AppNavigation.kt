@@ -240,7 +240,10 @@ fun AppNavigation() {
             composable(Screen.ViewPost.route) { backStackEntry ->
                 val postId = backStackEntry.arguments?.getString("postId")
                 if (postId != null) {
-                    ViewPostScreen(postId)
+                    ViewPostScreen(
+                        postId,
+                        onBackClick = {navController.popBackStack()},
+                    )
                 }
             }
 
