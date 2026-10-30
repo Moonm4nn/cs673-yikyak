@@ -10,7 +10,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import edu.cs673.yikyak_clone.data.repository.SupabaseCommentRepository
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
@@ -38,10 +41,12 @@ fun ViewPostScreen(postId: String) {
                         latitude = post.latitude,
                         longitude = post.longitude,
                         score = post.score,
+                        userVote = 0,
                         comment_count = post.comment_count,
                         is_removed = post.is_removed,
                         created_at = post.created_at,
-                        onLikeClick = {/* Add voting behavior later*/},
+                        onUpvote = { },
+                        onDownvote = { },
                     )
                 }
             }

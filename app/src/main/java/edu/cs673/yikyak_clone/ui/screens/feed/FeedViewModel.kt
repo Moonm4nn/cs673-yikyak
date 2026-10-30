@@ -6,11 +6,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
-import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
+import edu.cs673.yikyak_clone.data.repository.PostRepository
+import edu.cs673.yikyak_clone.data.repository.VoteRepository
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
+import android.util.Log
 import kotlinx.coroutines.launch
 
 // Values for the UI state of the feed screen.
+
+private const val REMOVAL_SCORE_THRESHOLD = -3
 data class FeedUiState(
     val posts: List<SocialPost> = emptyList(),
     val latitude: Double? = null,
@@ -31,9 +35,11 @@ sealed interface FeedUiAction {
 }
 
 class FeedViewModel(
-    private val repository: SupabasePostRepository
+    private val repository: PostRepository,
+    private val voteRepository: VoteRepository
 ) : ViewModel() {
 
+    private val TAG = "FeedViewModel"
     var uiState by mutableStateOf(FeedUiState())
         private set
 
@@ -45,40 +51,48 @@ class FeedViewModel(
     // Create a Supabase client
     private val supabaseClient = SupabaseClientProvider.client
 
+
     // Post ids with a vote request currently in flight (ignore rapid repeat taps)
     private val votesInFlight = mutableSetOf<String>()
 
-
-    //TODO: reconcile and implement methods below once rest of FeedViewModel is complete
-
     fun onVote(postId: String, tapped: Int) {
+        val post = uiState.posts.firstOrNull { it.id == postId } ?: return
+        if (!votesInFlight.add(postId)) return
 
-//        val post = posts.value.firstOrNull { it.id == postId } ?: return
-//        if (!votesInFlight.add(postId)) return
-//
-//        // Tapping the same arrow again removes the vote
-//        val newVote = if (post.userVote == tapped) 0 else tapped
-//        val delta = newVote - post.userVote
-//
-//
-//        updatePost(postId) { it.copy(userVote = newVote, score = it.score + delta) }
-//
-//        viewModelScope.launch {
-//            try {
-//                voteRepository.castVote("post", postId, newVote)
-//                    .onFailure { e ->
-//                        // Roll back to what it was before this tap
-//                        updatePost(postId) { it.copy(userVote = post.userVote, score = post.score) }
-//                        _errorMessage.value = "Couldn't register your vote. Please try again."
-//                      }
-//            } finally {
-//                votesInFlight.remove(postId)
-//            }
-//        }
+        // Tapping the same arrow again removes the vote
+        val newVote = if (post.userVote == tapped) 0 else tapped
+        val delta = newVote - post.userVote
+
+        Log.d(TAG, "onVote: $postId, $newVote")
+
+        updatePost(postId) { it.copy(userVote = newVote, score = it.score + delta) }
+
+        viewModelScope.launch {
+            try {
+                voteRepository.castVote("post", postId, newVote)
+                    .onSuccess {
+                        uiState = uiState.copy(
+                            posts = uiState.posts.filterNot { it.id == postId && it.score <= REMOVAL_SCORE_THRESHOLD }
+                        )
+                    }
+                    .onFailure { e ->
+                        // Roll back to what it was before this tap
+                        updatePost(postId) { it.copy(userVote = post.userVote, score = post.score) }
+                        uiState = uiState.copy(
+                            errorMessage = "Couldn't register your vote. Please try again."
+                        )
+                      }
+            } finally {
+                votesInFlight.remove(postId)
+            }
+        }
     }
 
     private fun updatePost(postId: String, transform: (SocialPost) -> SocialPost) {
-//        posts.update { list -> list.map { if (it.id == postId) transform(it) else it } }
+        Log.d(TAG, "updatePost: $postId")
+        uiState = uiState.copy(
+            posts = uiState.posts.map { if (it.id == postId) transform(it) else it }
+        )
     }
 
     // Handle UI actions
