@@ -8,8 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import edu.cs673.yikyak_clone.data.repository.PostRepository
 import edu.cs673.yikyak_clone.data.repository.VoteRepository
-import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
-import android.util.Log
 import kotlinx.coroutines.launch
 
 // Values for the UI state of the feed screen.
@@ -38,8 +36,6 @@ class FeedViewModel(
     private val repository: PostRepository,
     private val voteRepository: VoteRepository
 ) : ViewModel() {
-
-    private val TAG = "FeedViewModel"
     var uiState by mutableStateOf(FeedUiState())
         private set
 
@@ -47,10 +43,6 @@ class FeedViewModel(
     private val pageSize = 15
     private var currPage = 0
     private var isFetchLocked = false
-
-    // Create a Supabase client
-    private val supabaseClient = SupabaseClientProvider.client
-
 
     // Post ids with a vote request currently in flight (ignore rapid repeat taps)
     private val votesInFlight = mutableSetOf<String>()
@@ -62,8 +54,6 @@ class FeedViewModel(
         // Tapping the same arrow again removes the vote
         val newVote = if (post.userVote == tapped) 0 else tapped
         val delta = newVote - post.userVote
-
-        Log.d(TAG, "onVote: $postId, $newVote")
 
         updatePost(postId) { it.copy(userVote = newVote, score = it.score + delta) }
 
@@ -89,7 +79,6 @@ class FeedViewModel(
     }
 
     private fun updatePost(postId: String, transform: (SocialPost) -> SocialPost) {
-        Log.d(TAG, "updatePost: $postId")
         uiState = uiState.copy(
             posts = uiState.posts.map { if (it.id == postId) transform(it) else it }
         )
