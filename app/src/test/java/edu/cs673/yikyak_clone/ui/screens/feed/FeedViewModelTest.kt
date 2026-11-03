@@ -216,4 +216,92 @@ class FeedViewModelTest {
         assertEquals(lngTest, viewModel.uiState.longitude!!, deltaTest)
     }
 
+    // --- Feed sorting tests ---
+
+    @Test
+    fun `switching to hot feed loads hot feed`() {
+        // Initialize fake post parameters
+        val postIDs = listOf("post-1", "post-2")
+        val postScores = listOf(20, 10)
+        val latTest = 37.421
+        val lngTest = -122.084
+
+        // Create a fake repository with two posts
+        val voteRepository = FakeVoteRepository()
+        val postRepository = FakePostRepository(
+            posts = listOf(
+                testPost(id = postIDs[0], score = postScores[0]),
+                testPost(id = postIDs[1], score = postScores[1])
+            )
+        )
+
+        // Create a view model with the fake repository
+        val viewModel = FeedViewModel(postRepository, voteRepository)
+
+        // Update the location in the view model
+        viewModel.onUiAction(
+            FeedUiAction.UpdateLocation(latTest, lngTest)
+        )
+
+        // Sort by Hot
+        viewModel.onUiAction(
+            FeedUiAction.SetSortByHot(true)
+        )
+
+        // Verify two getPosts calls were made
+        assertEquals(2, postRepository.getPostsCallCount)
+
+        // Verify hot sorting
+        assertEquals(true, postRepository.lastSortByHot)
+        assertEquals(true, viewModel.uiState.sortByHot)
+
+        // Verify two posts were loaded
+        assertEquals(2, viewModel.uiState.posts.size)
+    }
+
+    @Test
+    fun `switching to new feed loads new feed`() {
+        // Initialize fake post parameters
+        val postIDs = listOf("post-1", "post-2")
+        val postScores = listOf(20, 10)
+        val latTest = 37.421
+        val lngTest = -122.084
+
+        // Create a fake repository with two posts
+        val voteRepository = FakeVoteRepository()
+        val postRepository = FakePostRepository(
+            posts = listOf(
+                testPost(id = postIDs[0], score = postScores[0]),
+                testPost(id = postIDs[1], score = postScores[1])
+            )
+        )
+
+        // Create a view model with the fake repository
+        val viewModel = FeedViewModel(postRepository, voteRepository)
+
+        // Update the location in the view model
+        viewModel.onUiAction(
+            FeedUiAction.UpdateLocation(latTest, lngTest)
+        )
+
+        // Sort by Hot
+        viewModel.onUiAction(
+            FeedUiAction.SetSortByHot(true)
+        )
+
+        // Back to Sort by New
+        viewModel.onUiAction(
+            FeedUiAction.SetSortByHot(false)
+        )
+
+        // Verify three getPosts calls were made
+        assertEquals(3, postRepository.getPostsCallCount)
+
+        // Verify new sorting
+        assertEquals(false, postRepository.lastSortByHot)
+        assertEquals(false, viewModel.uiState.sortByHot)
+
+        // Verify two posts were loaded
+        assertEquals(2, viewModel.uiState.posts.size)
+    }
 }
