@@ -128,4 +128,92 @@ class FeedViewModelTest {
         assertTrue(viewModel.uiState.posts.none { it.id == "post-1" })
         assertEquals(1, voteRepository.callCount)
     }
+
+    // --- Location-based feed tests ---
+    @Test
+    fun `location loads feed with correct coordinates`() {
+        // Define test values
+        val latTest = 37.421
+        val lngTest = -122.084
+        val deltaTest = 0.000001
+
+        // Create a fake repository with a single post
+        val voteRepository = FakeVoteRepository()
+        val postRepository = FakePostRepository(
+            posts = listOf(testPost())
+        )
+
+        // Create a view model with the fake repository
+        val viewModel = FeedViewModel(
+            postRepository,
+            voteRepository
+        )
+
+        // Update the location in the view model
+        viewModel.onUiAction(
+            FeedUiAction.UpdateLocation(latTest, lngTest)
+        )
+
+        // Verify that the repository was called only once
+        assertEquals(1, postRepository.getPostsCallCount)
+
+        // Verify correct latitude was passed
+        assertEquals(
+            latTest,
+            postRepository.lastFeedLatitude!!,
+            deltaTest
+        )
+
+        // Verify correct longitude was passed
+        assertEquals(
+            lngTest,
+            postRepository.lastFeedLongitude!!,
+            deltaTest
+        )
+
+        // Verify location was saved
+        assertEquals(latTest, viewModel.uiState.latitude!!, deltaTest)
+        assertEquals(lngTest, viewModel.uiState.longitude!!, deltaTest)
+
+        // Verify post was loaded
+        assertEquals(1, viewModel.uiState.posts.size)
+    }
+
+    @Test
+    fun `location update with same coordinates does not reload feed`() {
+        // Define test values
+        val latTest = 37.421
+        val lngTest = -122.084
+        val deltaTest = 0.000001
+
+        // Create a fake repository with a single post
+        val voteRepository = FakeVoteRepository()
+        val postRepository = FakePostRepository(
+            posts = listOf(testPost())
+        )
+
+        // Create a view model with the fake repository
+        val viewModel = FeedViewModel(
+            postRepository,
+            voteRepository
+        )
+
+        // Update the location in the view model
+        viewModel.onUiAction(
+            FeedUiAction.UpdateLocation(latTest, lngTest)
+        )
+
+        // Update the location in the view model with the same location
+        viewModel.onUiAction(
+            FeedUiAction.UpdateLocation(latTest, lngTest)
+        )
+
+        // Verify that the repository was called only once
+        assertEquals(1, postRepository.getPostsCallCount)
+
+        // Verify location was saved
+        assertEquals(latTest, viewModel.uiState.latitude!!, deltaTest)
+        assertEquals(lngTest, viewModel.uiState.longitude!!, deltaTest)
+    }
+
 }
