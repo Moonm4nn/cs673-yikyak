@@ -12,6 +12,14 @@ class FakePostRepository(
     var createCallCount: Int = 0
     var lastPostContent: String? = null
     var lastImageUri: Uri? = null
+    var lastLatitude: Double? = null
+    var lastLongitude: Double? = null
+    var getPostsCallCount: Int = 0
+    var lastPageNum: Int? = null
+    var lastPageSize: Int? = null
+    var lastFeedLatitude: Double? = null
+    var lastFeedLongitude: Double? = null
+    var lastSortByHot: Boolean? = null
 
     override suspend fun createPost(
         postContent: String,
@@ -22,6 +30,8 @@ class FakePostRepository(
         createCallCount += 1
         lastPostContent = postContent
         lastImageUri = imageUri
+        lastLatitude = latitude
+        lastLongitude = longitude
         return result
     }
 
@@ -32,11 +42,25 @@ class FakePostRepository(
         longitude: Double,
         sortByHot: Boolean
     ): List<SocialPost> {
-        createCallCount += 1
+        getPostsCallCount++
+        lastPageNum = pageNum
+        lastPageSize = pageSize
+        lastFeedLatitude = latitude
+        lastFeedLongitude = longitude
+        lastSortByHot = sortByHot
+
         return posts
     }
 
+    var getPostCallCount: Int = 0
+
     override suspend fun getPost(postId: String): Result<SocialPost> {
-        TODO("Not yet implemented")
+        getPostCallCount++
+        val post = posts.firstOrNull { it.id == postId }
+        return if (post != null) {
+            Result.success(post)
+        } else {
+            Result.failure(NoSuchElementException("Post $postId not found"))
+        }
     }
 }
