@@ -34,7 +34,8 @@ sealed interface FeedUiAction {
 
 class FeedViewModel(
     private val repository: PostRepository,
-    private val voteRepository: VoteRepository
+    private val voteRepository: VoteRepository,
+    private val channelId: String? = null
 ) : ViewModel() {
     var uiState by mutableStateOf(FeedUiState())
         private set
@@ -154,7 +155,8 @@ class FeedViewModel(
                     pageSize = pageSize,
                     latitude = latitude,
                     longitude = longitude,
-                    sortByHot = sortByHot
+                    sortByHot = sortByHot,
+                    channelId = channelId
                 )
 
                 currPage = targetPage

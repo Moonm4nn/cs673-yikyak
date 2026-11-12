@@ -1,6 +1,5 @@
 package edu.cs673.yikyak_clone.ui.screens.feed
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -15,13 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -29,6 +26,8 @@ import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.LaunchedEffect
@@ -36,9 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import edu.cs673.yikyak_clone.data.model.Channel
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseVoteRepository
 import edu.cs673.yikyak_clone.ui.components.SocialPostCard
@@ -49,30 +46,28 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.painterResource
 import edu.cs673.yikyak_clone.R
-import edu.cs673.yikyak_clone.ui.theme.UpvoteGreen
+import edu.cs673.yikyak_clone.data.repository.SupabaseChannelRepository
+import edu.cs673.yikyak_clone.ui.components.ChannelImage
+import edu.cs673.yikyak_clone.ui.screens.channel.ChannelListViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
     onPostClick: (String) -> Unit,
-    onSearchChannelsClick: () -> Unit = {}
+    onSearchChannelsClick: () -> Unit = {},
+    onCreatePostClick: (channelId: String?, channelName: String?) -> Unit = { _, _ -> }
 ) {
+
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
     // null = public (nearby) feed, otherwise the id of the selected channel
     var selectedChannelId by rememberSaveable { mutableStateOf<String?>(null) }
 
-    // PLACEHOLDER: replace with channels loaded by a ChannelListViewModel / ChannelRepository.
-    val channels = remember {
-        listOf(
-            Channel(id = "housing", name = "Housing"),
-            Channel(id = "basketball", name = "Basketball"),
-            Channel(id = "chess", name = "Chess"),
-            Channel(id = "clubs", name = "Clubs")
-        )
-    }
+    val channelListViewModel = remember { ChannelListViewModel(SupabaseChannelRepository()) }
+    val channelState = channelListViewModel.uiState
+    val channels = channelState.channels
     val selectedChannel = channels.firstOrNull { it.id == selectedChannelId }
 
     ModalNavigationDrawer(
@@ -90,7 +85,7 @@ fun FeedScreen(
                     Text(
                         text = "Channels",
                         style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)      // pushes the icon to the far right
+                        modifier = Modifier.weight(1f)
                     )
                     IconButton(
                         onClick = {
@@ -120,6 +115,18 @@ fun FeedScreen(
                     modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
                 )
 
+                when {
+                    channelState.isLoading && channels.isEmpty() -> {
+                        CircularProgressIndicator(modifier = Modifier.padding(28.dp))
+                    }
+                    channelState.errorMessage != null && channels.isEmpty() -> {
+                        Column(modifier = Modifier.padding(horizontal = 28.dp, vertical = 8.dp)) {
+                            Text(channelState.errorMessage, color = MaterialTheme.colorScheme.error)
+                            TextButton(onClick = { channelListViewModel.loadChannels() }) { Text("Retry") }
+                        }
+                    }
+                }
+
                 channels.forEach { channel ->
                     NavigationDrawerItem(
                         label = { Text(channel.name) },
@@ -135,47 +142,58 @@ fun FeedScreen(
             }
         }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 4.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                    Icon(
-                        painter = painterResource(
-                            id = R.drawable.channel_menu
-                        ),
-                        contentDescription = "Open Channels"
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { scope.launch { drawerState.open() } }) {
+                        Icon(
+                            painter = painterResource(
+                                id = R.drawable.channel_menu
+                            ),
+                            contentDescription = "Open Channels"
+                        )
+                    }
+                    Text(
+                        text = selectedChannel?.name ?: "Yik Yak",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
-                Text(
-                    text = selectedChannel?.name ?: "Yik Yak",
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
 
-            // Changing the key rebuilds everything inside: a new ViewModel, scroll position, and location fetch
-            key(selectedChannelId) {
-                FeedContent(
-                    channelId = selectedChannelId,
-                    onPostClick = onPostClick
-                )
+                // Changing the key rebuilds everything inside: a new ViewModel, scroll position, and location fetch
+                key(selectedChannelId) {
+                    FeedContent(
+                        channelId = selectedChannelId,
+                        onPostClick = onPostClick
+                    )
+                }
+            }
+            FloatingActionButton(
+                onClick = { onCreatePostClick(selectedChannelId, selectedChannel?.name) },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp)
+            ) {
+                Text("+")
             }
         }
+
     }
 }
 
 @Composable
 private fun FeedContent(
-    channelId: String?,   // TODO: pass to FeedViewModel once it supports channels
+    channelId: String?,
     onPostClick: (String) -> Unit
 ) {
     val postRepository = remember { SupabasePostRepository() }
     val voteRepository = remember { SupabaseVoteRepository() }
-    val viewModel = remember { FeedViewModel(postRepository, voteRepository) }
+    val viewModel = remember { FeedViewModel(postRepository, voteRepository, channelId) }
     val uiState = viewModel.uiState
     val listState = rememberLazyListState()
     val context = LocalContext.current
@@ -282,21 +300,6 @@ private fun FeedContent(
     }
 }
 
-@Composable
-private fun ChannelImage(name: String) {
-    Box(
-        modifier = Modifier
-            .size(40.dp)
-            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = name.first().uppercase(),
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
 
 // Social Post Item
 @Composable
