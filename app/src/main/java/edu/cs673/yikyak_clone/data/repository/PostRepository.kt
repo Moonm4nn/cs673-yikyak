@@ -21,7 +21,8 @@ interface PostRepository {
         postContent: String,
         latitude: Double,
         longitude: Double,
-        imageUri: Uri? = null
+        imageUri: Uri? = null,
+        channelId: String? = null,
     ): Result<Unit>
 
     suspend fun getPosts(
@@ -29,7 +30,8 @@ interface PostRepository {
         pageSize: Int,
         latitude: Double,
         longitude: Double,
-        sortByHot: Boolean
+        sortByHot: Boolean,
+        channelId: String? = null
     ): List<SocialPost>
 
     suspend fun getPost(
@@ -44,7 +46,8 @@ class SupabasePostRepository(
         postContent: String,
         latitude: Double,
         longitude: Double,
-        imageUri: Uri?
+        imageUri: Uri?,
+        channelId: String?
     ): Result<Unit> = runCatching {
         supabase.postgrest.rpc(
             function = "create_post",
@@ -52,6 +55,7 @@ class SupabasePostRepository(
                 put("p_content", postContent)
                 put("p_lat", latitude)
                 put("p_lng", longitude)
+                put("p_channel_id", channelId)
             }
         )
     }
@@ -62,7 +66,8 @@ class SupabasePostRepository(
         pageSize: Int,
         latitude: Double,
         longitude: Double,
-        sortByHot: Boolean
+        sortByHot: Boolean,
+        channelId: String?
     ): List<SocialPost> {
         // Calculate the index range of posts to fetch
         val fromPostIndex = pageNum * pageSize
@@ -74,6 +79,7 @@ class SupabasePostRepository(
             parameters = buildJsonObject {
                 put("u_lat", latitude)
                 put("u_lng", longitude)
+                put("p_channel_id", channelId)
                 put("rad_km", 5.0)
                 put("page_offset", fromPostIndex)
                 put("page_limit", toPostIndex)
