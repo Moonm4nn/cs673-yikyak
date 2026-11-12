@@ -1,12 +1,19 @@
 package edu.cs673.yikyak_clone.ui.navigation
 
+import android.net.Uri
 
-/** data class of screen containing routes
+/** data class of screen containing routes2
  *
  */
 sealed class Screen(val route: String) {
     data object Feed : Screen("feed")
-    data object CreatePost : Screen("create_post")
+    data object CreatePost : Screen("createPost?channelId={channelId}&channelName={channelName}") {
+        fun createRoute(channelId: String?, channelName: String?) =
+            if (channelId == null) {"createPost"}
+            else {
+                "createPost?channelId=${Uri.encode(channelId)}&channelName=${Uri.encode(channelName ?: "")}"
+            }
+    }
     data object Channels : Screen("channels")
     data object Notifications : Screen("notifications")
     data object Profile : Screen("profile")

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -25,11 +24,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseUserRepository
@@ -217,17 +220,6 @@ fun AppNavigation() {
                 }
             }
         },
-        floatingActionButton = {
-            if (currentRoute in navbarScreens) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(Screen.CreatePost.route)
-                    }
-                ) {
-                    Text("+")
-                }
-            }
-        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -235,9 +227,21 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Feed.route) {
-                FeedScreen(onPostClick = { postId ->
-                    navController.navigate(Screen.ViewPost.createRoute(postId))
-                })
+                FeedScreen(
+                    onPostClick = { postId -> navController.navigate(Screen.ViewPost.createRoute(postId)) },
+                    onCreatePostClick = { channelId, channelName ->
+                        navController.navigate(Screen.CreatePost.createRoute(channelId, channelName))
+                    },
+                    onSearchChannelsClick = {
+                        navController.navigate(Screen.Channels.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
 
             composable(Screen.ViewPost.route) { backStackEntry ->
@@ -250,8 +254,24 @@ fun AppNavigation() {
                 }
             }
 
-            composable(Screen.CreatePost.route) {
+            composable(
+                    route = Screen.CreatePost.route,
+                arguments = listOf(
+                    navArgument("channelId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    navArgument("channelName") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { entry ->
                 CreatePostScreen(
+                    channelId = entry.arguments?.getString("channelId"),
+                    channelName = entry.arguments?.getString("channelName"),
                     onBackClick = {
                         navController.popBackStack()
                     },
