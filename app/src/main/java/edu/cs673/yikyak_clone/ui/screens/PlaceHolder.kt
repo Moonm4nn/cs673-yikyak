@@ -53,13 +53,13 @@ fun FeedScreen() {
 //    )
 //}
 
-@Composable
-fun ChannelsScreen() {
-    PlaceholderScreen(
-        title = "Channels",
-        description = "Explore topic-based communities."
-    )
-}
+//@Composable
+//fun ChannelsScreen() {
+//    PlaceholderScreen(
+//        title = "Channels",
+//        description = "Explore topic-based communities."
+//    )
+//}
 
 @Composable
 fun NotificationsScreen() {
