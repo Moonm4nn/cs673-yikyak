@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -27,6 +29,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import edu.cs673.yikyak_clone.data.getCurrentLocation
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 
@@ -34,14 +38,17 @@ private const val MAX_POST_LENGTH = 200
 
 @Composable
 fun CreatePostScreen(
+    modifier: Modifier = Modifier,
     onBackClick: () -> Unit = {},
-    onPostSuccess: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onPostSuccess: () -> Unit = {}
 ) {
     val repository = remember { SupabasePostRepository() }
     val viewModel = remember { CreatePostViewModel(repository) }
     val uiState = viewModel.uiState
     val context = LocalContext.current
+    val postTypeExpanded = remember { mutableStateOf(false) }
+    val postTypeOptions = listOf("Post", "Event")
+    val postTypeSelectedOption = remember { mutableIntStateOf(0) }
 
 
     LaunchedEffect(uiState.postCreated) {
@@ -66,13 +73,31 @@ fun CreatePostScreen(
                     IconButton(onClick = onBackClick) {
                         Text("←")
                     }
-                    Text(
-                        text = "New Post",
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    )
+                    Box (modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp)
+                    ) {
+                        // Button which creates dropdown menu
+                        Button(onClick = { postTypeExpanded.value = true }) {
+                            Text("New " + postTypeOptions[postTypeSelectedOption.intValue] + " ↓")
+                        }
+                        // Dropdown menu which responds to button click
+                        DropdownMenu(
+                            expanded = postTypeExpanded.value,
+                            onDismissRequest = { postTypeExpanded.value = false }
+                        ) {
+                            // Create dropdown menu items for each option
+                            postTypeOptions.forEachIndexed { index, option ->
+                                DropdownMenuItem(
+                                    text = { Text(option) },
+                                    onClick = {
+                                        postTypeSelectedOption.intValue = index
+                                        postTypeExpanded.value = false
+                                    }
+                                )
+                            }
+                        }
+                    }
                     Button(
                         onClick = {
                             getCurrentLocation(context) { lat, lon ->
@@ -123,6 +148,11 @@ fun CreatePostScreen(
                     unfocusedBorderColor = Color.Transparent
                 )
             )
+            // Only appears if post type is event
+            if (postTypeSelectedOption.intValue == 1) {
+                Text("Date/Time1")
+                Text("Date/Time2")
+            }
 
             if (!uiState.errorMessage.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
