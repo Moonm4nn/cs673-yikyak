@@ -19,7 +19,8 @@ data class CreatePostUiState(
     val longitude: Double? = null,
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
-    val postCreated: Boolean = false
+    val postCreated: Boolean = false,
+
 )
 
 sealed interface CreatePostUiAction {
@@ -29,7 +30,8 @@ sealed interface CreatePostUiAction {
 }
 
 class CreatePostViewModel(
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val channelId: String? = null
 ) : ViewModel() {
     var uiState by mutableStateOf(CreatePostUiState())
         private set
@@ -87,7 +89,8 @@ class CreatePostViewModel(
                         postContent = uiState.postContent,
                         latitude = lat,
                         longitude = lng,
-                        imageUri = action.imageUri
+                        imageUri = action.imageUri,
+                        channelId = channelId
                     )
 
                     uiState = if (result.isSuccess) {
