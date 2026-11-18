@@ -29,19 +29,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.LaunchedEffect
 import edu.cs673.yikyak_clone.data.getCurrentLocation
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
+import edu.cs673.yikyak_clone.ui.components.ChannelImage
 
 private const val MAX_POST_LENGTH = 200
 
 @Composable
 fun CreatePostScreen(
+    channelId: String? = null,
+    channelName: String? = null,
     onBackClick: () -> Unit = {},
     onPostSuccess: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val repository = remember { SupabasePostRepository() }
-    val viewModel = remember { CreatePostViewModel(repository) }
+    val viewModel = remember (channelId) { CreatePostViewModel(repository, channelId) }
     val uiState = viewModel.uiState
     val context = LocalContext.current
+    val displayName = if (channelId == null) "Nearby" else (channelName ?: "Channel")
 
 
     LaunchedEffect(uiState.postCreated) {
@@ -62,7 +66,8 @@ fun CreatePostScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ) {
+                )
+                {
                     IconButton(onClick = onBackClick) {
                         Text("←")
                     }
@@ -72,6 +77,14 @@ fun CreatePostScreen(
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 8.dp)
+                    )
+                    ChannelImage(displayName)
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
                     )
                     Button(
                         onClick = {
