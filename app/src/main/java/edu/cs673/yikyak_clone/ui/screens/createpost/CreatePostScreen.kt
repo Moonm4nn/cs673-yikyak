@@ -1,5 +1,8 @@
 package edu.cs673.yikyak_clone.ui.screens.createpost
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,9 +10,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -27,9 +34,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import coil3.compose.AsyncImage
 import edu.cs673.yikyak_clone.data.getCurrentLocation
 import edu.cs673.yikyak_clone.data.repository.SupabasePostRepository
 import edu.cs673.yikyak_clone.ui.components.ChannelImage
+import edu.cs673.yikyak_clone.R
 
 private const val MAX_POST_LENGTH = 200
 
@@ -46,6 +58,11 @@ fun CreatePostScreen(
     val uiState = viewModel.uiState
     val context = LocalContext.current
     val displayName = if (channelId == null) "Nearby" else (channelName ?: "Channel")
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        if (uri != null) viewModel.onUiAction(CreatePostUiAction.SetImage(uri))
+    }
 
 
     LaunchedEffect(uiState.postCreated) {
@@ -110,6 +127,36 @@ fun CreatePostScreen(
                     }
                 }
             }
+        },
+        bottomBar = {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .imePadding(),
+                tonalElevation = 3.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(
+                        onClick = {
+                            imagePicker.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        },
+                        enabled = !uiState.isLoading
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.post_image_icon),
+                            contentDescription = "Attach image",
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                }
+            }
         }
     ) { innerPadding ->
         Column(
@@ -136,6 +183,27 @@ fun CreatePostScreen(
                     unfocusedBorderColor = Color.Transparent
                 )
             )
+
+            uiState.imageUri?.let { uri ->
+                Box(modifier = Modifier.padding(top = 8.dp)) {
+                    AsyncImage(
+                        model = uri,
+                        contentDescription = "Selected image",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                    )
+                    IconButton(
+                        onClick = { viewModel.onUiAction(CreatePostUiAction.RemoveImage) },
+                        enabled = !uiState.isLoading,
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Text("✕", color = Color.White)
+                    }
+                }
+            }
 
             if (!uiState.errorMessage.isNullOrBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
