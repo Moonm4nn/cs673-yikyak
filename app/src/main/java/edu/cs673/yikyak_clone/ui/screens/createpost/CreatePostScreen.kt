@@ -90,40 +90,12 @@ fun CreatePostScreen(
                     IconButton(onClick = onBackClick) {
                         Text("←")
                     }
-                    // Start
-                    Box (modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 8.dp)
-                    ) {
-                        // Button which creates dropdown menu
-                        Button(onClick = { postTypeExpanded.value = true }) {
-                            Text("New " + postTypeOptions[postTypeSelectedOption.intValue] + " ↓")
-                        }
-                        // Dropdown menu which responds to button click
-                        DropdownMenu(
-                            expanded = postTypeExpanded.value,
-                            onDismissRequest = { postTypeExpanded.value = false }
-                        ) {
-                            // Create dropdown menu items for each option
-                            postTypeOptions.forEachIndexed { index, option ->
-                                DropdownMenuItem(
-                                    text = { Text(option) },
-                                    onClick = {
-                                        postTypeSelectedOption.intValue = index
-                                        postTypeExpanded.value = false
-                                    }
-                                )
-                            }
-                        }
-                    }
-                    // End
-                    // Start
                     Text(
-                        text = "New Post",
-                        style = MaterialTheme.typography.titleLarge,
+                        text = ("New " + postTypeOptions[postTypeSelectedOption.intValue]),
+                        style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
+                            .weight(2f)
+                            .padding(horizontal = 4.dp, vertical = 8.dp),
                     )
                     ChannelImage(displayName)
                     Text(
@@ -133,7 +105,6 @@ fun CreatePostScreen(
                             .weight(1f)
                             .padding(start = 12.dp)
                     )
-                    // End
                     Button(
                         onClick = {
                             getCurrentLocation(context) { lat, lon ->
@@ -166,6 +137,29 @@ fun CreatePostScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
+            // Start
+
+            // Button which creates dropdown menu
+            Button(onClick = { postTypeExpanded.value = true }) {
+                Text("New " + postTypeOptions[postTypeSelectedOption.intValue] + " ↓")
+            }
+            // Dropdown menu which responds to button click
+            DropdownMenu(
+                expanded = postTypeExpanded.value,
+                onDismissRequest = { postTypeExpanded.value = false }
+            ) {
+                // Create dropdown menu items for each option
+                postTypeOptions.forEachIndexed { index, option ->
+                    DropdownMenuItem(
+                        text = { Text(option) },
+                        onClick = {
+                            postTypeSelectedOption.intValue = index
+                            postTypeExpanded.value = false
+                        }
+                    )
+                }
+
+            }
             OutlinedTextField(
                 value = uiState.postContent,
                 onValueChange = { newText ->
