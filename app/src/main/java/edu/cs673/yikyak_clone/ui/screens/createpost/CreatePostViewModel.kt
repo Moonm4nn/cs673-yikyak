@@ -20,6 +20,7 @@ data class CreatePostUiState(
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
     val postCreated: Boolean = false,
+    val imageUri: Uri? = null
 
 )
 
@@ -27,6 +28,8 @@ sealed interface CreatePostUiAction {
     data class UpdatePostContent(val input: String) : CreatePostUiAction
     data class UpdateLocation(val lat: Double, val lng: Double) : CreatePostUiAction
     data class CreatePost(val imageUri: Uri? = null) : CreatePostUiAction
+    data class SetImage(val uri: Uri) : CreatePostUiAction
+    object RemoveImage : CreatePostUiAction
 }
 
 class CreatePostViewModel(
@@ -52,6 +55,14 @@ class CreatePostViewModel(
                     errorMessage = null
                 )
             }
+
+            is CreatePostUiAction.SetImage -> {
+                uiState = uiState.copy(imageUri = action.uri, errorMessage = null)
+            }
+            is CreatePostUiAction.RemoveImage -> {
+                uiState = uiState.copy(imageUri = null)
+            }
+
             is CreatePostUiAction.CreatePost -> {
                 val lat = uiState.latitude
                 val lng = uiState.longitude
@@ -89,7 +100,7 @@ class CreatePostViewModel(
                         postContent = uiState.postContent,
                         latitude = lat,
                         longitude = lng,
-                        imageUri = action.imageUri,
+                        imageUri = action.imageUri ?: uiState.imageUri,
                         channelId = channelId
                     )
 
