@@ -45,22 +45,26 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
+import edu.cs673.yikyak_clone.ui.components.ChannelImage
 
 private const val MAX_POST_LENGTH = 200
 
 @Composable
 fun CreatePostScreen(
     modifier: Modifier = Modifier,
+    channelId: String? = null,
+    channelName: String? = null,
     onBackClick: () -> Unit = {},
     onPostSuccess: () -> Unit = {}
 ) {
     val repository = remember { SupabasePostRepository() }
-    val viewModel = remember { CreatePostViewModel(repository) }
+    val viewModel = remember (channelId) { CreatePostViewModel(repository, channelId) }
     val uiState = viewModel.uiState
     val context = LocalContext.current
     val postTypeExpanded = remember { mutableStateOf(false) }
     val postTypeOptions = listOf("Post", "Event")
     val postTypeSelectedOption = remember { mutableIntStateOf(0) }
+    val displayName = if (channelId == null) "Nearby" else (channelName ?: "Channel")
 
 
     LaunchedEffect(uiState.postCreated) {
@@ -81,10 +85,12 @@ fun CreatePostScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 4.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ) {
+                )
+                {
                     IconButton(onClick = onBackClick) {
                         Text("←")
                     }
+                    // Start
                     Box (modifier = Modifier
                         .weight(1f)
                         .padding(start = 8.dp)
@@ -110,6 +116,24 @@ fun CreatePostScreen(
                             }
                         }
                     }
+                    // End
+                    // Start
+                    Text(
+                        text = "New Post",
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    )
+                    ChannelImage(displayName)
+                    Text(
+                        text = displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 12.dp)
+                    )
+                    // End
                     Button(
                         onClick = {
                             getCurrentLocation(context) { lat, lon ->
