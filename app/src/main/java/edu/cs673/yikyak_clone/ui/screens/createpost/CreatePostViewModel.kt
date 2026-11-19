@@ -27,6 +27,7 @@ sealed interface CreatePostUiAction {
     data class UpdatePostContent(val input: String) : CreatePostUiAction
     data class UpdateLocation(val lat: Double, val lng: Double) : CreatePostUiAction
     data class CreatePost(val imageUri: Uri? = null) : CreatePostUiAction
+    object LocationFailed : CreatePostUiAction
 }
 
 class CreatePostViewModel(
@@ -38,6 +39,11 @@ class CreatePostViewModel(
 
     fun onUiAction(action: CreatePostUiAction) {
         when(action) {
+            is CreatePostUiAction.LocationFailed -> {
+                uiState = uiState.copy(
+                    errorMessage = "Couldn't get your location. Make sure location is on and try again."
+                )
+            }
 
             is CreatePostUiAction.UpdateLocation -> {
                 uiState = uiState.copy(
@@ -53,6 +59,8 @@ class CreatePostViewModel(
                 )
             }
             is CreatePostUiAction.CreatePost -> {
+                if (uiState.isLoading || uiState.postCreated) return
+
                 val lat = uiState.latitude
                 val lng = uiState.longitude
 
@@ -79,14 +87,15 @@ class CreatePostViewModel(
                     return
                 }
 
-                viewModelScope.launch {
-                    uiState = uiState.copy(
-                        isLoading = true,
-                        postCreated = false,
-                    )
+                uiState = uiState.copy(
+                    isLoading = true,
+                    postCreated = false,
+                    errorMessage = null,
+                )
 
+                viewModelScope.launch {
                     val result = postRepository.createPost(
-                        postContent = uiState.postContent,
+                        postContent = content,
                         latitude = lat,
                         longitude = lng,
                         imageUri = action.imageUri,
