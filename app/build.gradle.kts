@@ -109,7 +109,6 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
-
     // Base Dependencies needed for Supabase
     implementation(platform(libs.bom))
     implementation(libs.postgrest.kt)
@@ -119,6 +118,8 @@ dependencies {
     // Ktor Client Engine needed for Kotlin Target for Supabase
     implementation(libs.ktor.client.android)
     testImplementation(libs.ktor.client.cio)
+
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
 
     // Location Services API for Geotagging
     implementation(libs.play.services.location)
