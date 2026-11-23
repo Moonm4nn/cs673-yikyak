@@ -20,18 +20,22 @@ class FakePostRepository(
     var lastFeedLatitude: Double? = null
     var lastFeedLongitude: Double? = null
     var lastSortByHot: Boolean? = null
+    var lastChannelId: String? = null
+    var lastGetPostsChannelId: String? = null
 
     override suspend fun createPost(
         postContent: String,
         latitude: Double,
         longitude: Double,
-        imageUri: Uri?
+        imageUri: Uri?,
+        channelId: String?
     ): Result<Unit> {
         createCallCount += 1
         lastPostContent = postContent
         lastImageUri = imageUri
         lastLatitude = latitude
         lastLongitude = longitude
+        lastChannelId = channelId
         return result
     }
 
@@ -40,7 +44,8 @@ class FakePostRepository(
         pageSize: Int,
         latitude: Double,
         longitude: Double,
-        sortByHot: Boolean
+        sortByHot: Boolean,
+        channelId: String?
     ): List<SocialPost> {
         getPostsCallCount++
         lastPageNum = pageNum
@@ -48,6 +53,7 @@ class FakePostRepository(
         lastFeedLatitude = latitude
         lastFeedLongitude = longitude
         lastSortByHot = sortByHot
+        lastGetPostsChannelId = channelId
 
         return posts
     }

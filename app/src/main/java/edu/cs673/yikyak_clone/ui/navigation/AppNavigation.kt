@@ -1,16 +1,17 @@
 package edu.cs673.yikyak_clone.ui.navigation
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -19,14 +20,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.NavGraph
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import edu.cs673.yikyak_clone.data.remote.SupabaseClientProvider
 import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseUserRepository
@@ -44,6 +50,7 @@ import edu.cs673.yikyak_clone.ui.screens.signup.WelcomeScreen
 import edu.cs673.yikyak_clone.ui.screens.viewpost.ViewPostScreen
 import edu.cs673.yikyak_clone.ui.session.SessionBootViewModel
 import edu.cs673.yikyak_clone.ui.session.SessionState
+import edu.cs673.yikyak_clone.R
 
 /** Screens where the bottom navbar and + floating icon are expected*/
 val navbarScreens = listOf(
@@ -53,6 +60,20 @@ val navbarScreens = listOf(
     Screen.Profile.route,
     Screen.Feed.route
 )
+
+private data class BottomNavItem(
+    val screen: Screen,
+    val label: String,
+    @DrawableRes val iconRes: Int
+)
+
+private val bottomNavItems = listOf(
+    BottomNavItem(Screen.Feed, "Feed", R.drawable.home),
+    BottomNavItem(Screen.Channels, "Explore", R.drawable.explore_compass),
+    BottomNavItem(Screen.Notifications, "Alerts", R.drawable.notification_bell),
+    BottomNavItem(Screen.Profile, "Profile", R.drawable.profile)
+)
+
 @Preview(showBackground = true)
 @Composable
 fun AppNavigation() {
@@ -173,21 +194,13 @@ fun AppNavigation() {
         bottomBar = {
             if (currentRoute in navbarScreens) {
                 NavigationBar {
-                    val destinations = listOf(
-                        Screen.Feed,
-                        Screen.Channels,
-                        Screen.Notifications,
-                        Screen.Profile
-                    )
-
-                    destinations.forEach { screen ->
+                    bottomNavItems.forEach { item ->
                         NavigationBarItem(
-                            selected = currentRoute == screen.route,
+                            selected = currentRoute == item.screen.route,
                             onClick = {
-                                navController.navigate(screen.route) {
+                                navController.navigate(item.screen.route) {
                                     popUpTo(
-                                        navController.graph
-                                            .findStartDestination().id
+                                        navController.graph.findStartDestination().id
                                     ) {
                                         saveState = true
                                     }
@@ -196,35 +209,17 @@ fun AppNavigation() {
                                 }
                             },
                             icon = {
-                                Text(screen.route.take(1).uppercase())
-                            },
-                            label = {
-                                Text(
-                                    when (screen) {
-                                        Screen.Feed -> "Feed"
-                                        Screen.Channels -> "Channels"
-                                        Screen.Notifications -> "Alerts"
-                                        Screen.Profile -> "Profile"
-                                        else -> screen.route
-                                    }
+                                Icon(
+                                    painter = painterResource(id = item.iconRes),
+                                    contentDescription = item.label
                                 )
-                            }
+                            },
+                            label = { Text(item.label) }
                         )
                     }
                 }
             }
         },
-        floatingActionButton = {
-            if (currentRoute in navbarScreens) {
-                FloatingActionButton(
-                    onClick = {
-                        navController.navigate(Screen.CreatePost.route)
-                    }
-                ) {
-                    Text("+")
-                }
-            }
-        }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -232,9 +227,21 @@ fun AppNavigation() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(Screen.Feed.route) {
-                FeedScreen(onPostClick = { postId ->
-                    navController.navigate(Screen.ViewPost.createRoute(postId))
-                })
+                FeedScreen(
+                    onPostClick = { postId -> navController.navigate(Screen.ViewPost.createRoute(postId)) },
+                    onCreatePostClick = { channelId, channelName ->
+                        navController.navigate(Screen.CreatePost.createRoute(channelId, channelName))
+                    },
+                    onSearchChannelsClick = {
+                        navController.navigate(Screen.Channels.route) {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                )
             }
 
             composable(Screen.ViewPost.route) { backStackEntry ->
@@ -247,8 +254,24 @@ fun AppNavigation() {
                 }
             }
 
-            composable(Screen.CreatePost.route) {
+            composable(
+                    route = Screen.CreatePost.route,
+                arguments = listOf(
+                    navArgument("channelId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    },
+                    navArgument("channelName") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { entry ->
                 CreatePostScreen(
+                    channelId = entry.arguments?.getString("channelId"),
+                    channelName = entry.arguments?.getString("channelName"),
                     onBackClick = {
                         navController.popBackStack()
                     },
