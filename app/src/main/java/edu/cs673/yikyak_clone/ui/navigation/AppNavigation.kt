@@ -38,10 +38,10 @@ import edu.cs673.yikyak_clone.data.repository.SupabaseAuthRepository
 import edu.cs673.yikyak_clone.data.repository.SupabaseUserRepository
 import edu.cs673.yikyak_clone.ui.components.UserSessionViewModel
 import edu.cs673.yikyak_clone.ui.screens.ChannelsScreen
-import edu.cs673.yikyak_clone.ui.screens.NotificationsScreen
 import edu.cs673.yikyak_clone.ui.screens.createpost.CreatePostScreen
 import edu.cs673.yikyak_clone.ui.screens.editprofile.EditProfileScreen
 import edu.cs673.yikyak_clone.ui.screens.feed.FeedScreen
+import edu.cs673.yikyak_clone.ui.screens.notifications.NotificationsScreen
 import edu.cs673.yikyak_clone.ui.screens.profile.ProfileScreen
 import edu.cs673.yikyak_clone.ui.screens.settings.SettingsScreen
 import edu.cs673.yikyak_clone.ui.screens.signup.AccountCreationScreen
