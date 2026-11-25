@@ -31,11 +31,12 @@ class NotificationsViewModel(
             notificationRepository.getMyNotifications()
                 .onSuccess { notifications ->
                     uiState = uiState.copy(notifications = notifications, isLoading = false)
+                    notificationRepository.markNotificationsRead()
                 }
                 .onFailure {
                     uiState = uiState.copy(
                         isLoading = false,
-                        errorMessage = "Couldn't load notifications"
+                        errorMessage = "Couldn't load notifications",
                     )
                 }
         }

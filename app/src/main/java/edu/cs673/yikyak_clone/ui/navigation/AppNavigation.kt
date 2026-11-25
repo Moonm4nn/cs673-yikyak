@@ -284,7 +284,9 @@ fun AppNavigation() {
             }
 
             composable(Screen.Notifications.route) {
-                NotificationsScreen()
+                NotificationsScreen(onNotificationClick = { postId ->
+                    navController.navigate(Screen.ViewPost.createRoute(postId))
+                })
             }
 
             composable(Screen.Profile.route) {
