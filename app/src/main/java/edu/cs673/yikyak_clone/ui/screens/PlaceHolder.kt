@@ -61,13 +61,13 @@ fun FeedScreen() {
 //    )
 //}
 
-@Composable
-fun NotificationsScreen() {
-    PlaceholderScreen(
-        title = "Notifications",
-        description = "Your replies and notifications will appear here."
-    )
-}
+//@Composable
+//fun NotificationsScreen() {
+//    PlaceholderScreen(
+//        title = "Notifications",
+//        description = "Your replies and notifications will appear here."
+//    )
+//}
 
 /*@Composable
 fun ProfileScreen() {
